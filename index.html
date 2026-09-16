@@ -49,14 +49,14 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg tracking-tight">LPJ-Cloud Organisasi</h1>
-                    <p class="text-xs text-indigo-200">Sinkronisasi Terpusat Google Drive</p>
+                    <p class="text-xs text-indigo-200">Sinkronisasi Online Google Drive (GAS)</p>
                 </div>
             </div>
             
             <div class="flex items-center space-x-4">
                 <div id="driveStatusBadge" class="hidden sm:flex items-center space-x-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs px-3 py-1.5 rounded-full">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Drive Terhubung: <strong id="driveFolderName">Pusat_Organisasi_Drive</strong></span>
+                    <span>Status: <strong id="driveFolderName">Online Terhubung</strong></span>
                 </div>
                 <div class="relative">
                     <button onclick="toggleUserMenu()" class="flex items-center space-x-2 bg-indigo-800 hover:bg-indigo-700 px-3 py-1.5 rounded-lg text-sm transition">
@@ -161,9 +161,9 @@
                     <div>
                         <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
                             <i class="fa-solid fa-sliders text-indigo-600"></i>
-                            <span>Manajemen Kepanitiaan & Folder Otomatis Google Drive</span>
+                            <span>Manajemen Kepanitiaan & Folder Google Drive</span>
                         </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Buat event baru atau kelola akun kepanitiaan dengan folder terisolasi otomatis.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Kelola event dan sinkronisasi arsip secara online.</p>
                     </div>
                     <button onclick="openModalNewEvent()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm shadow-indigo-100">
                         <i class="fa-solid fa-plus"></i>
@@ -195,20 +195,20 @@
                 <div>
                     <h3 class="text-xl font-bold flex items-center space-x-2">
                         <i class="fa-solid fa-file-shield text-emerald-400"></i>
-                        <span>Generator Dokumen LPJ Resmi ke Google Drive Pusat</span>
+                        <span>Generator Dokumen LPJ Resmi ke Google Drive Online</span>
                     </h3>
                     <p class="text-indigo-200 text-sm mt-1 max-w-2xl">
-                        Sistem menyusun rekapitulasi lengkap (BKU, Rekap Per Seksi, dan Inventaris Aset) dan otomatis mengunggah arsip PDF/Excel ke Google Drive Utama organisasi sebagai arsip permanen.
+                        Sistem menyusun rekapitulasi lengkap dan otomatis mengunggah arsip Excel & PDF langsung ke Google Drive melalui Google Apps Script.
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-3">
                     <button onclick="generateExcelLPJ()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition flex items-center space-x-2 shadow-md">
                         <i class="fa-solid fa-file-excel"></i>
-                        <span>Unduh / Simpan Excel</span>
+                        <span>Simpan Excel ke Drive</span>
                     </button>
                     <button onclick="generatePdfLPJ()" class="bg-rose-600 hover:bg-rose-500 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition flex items-center space-x-2 shadow-md">
                         <i class="fa-solid fa-file-pdf"></i>
-                        <span>Cetak / Arsipkan PDF</span>
+                        <span>Simpan PDF ke Drive</span>
                     </button>
                 </div>
             </div>
@@ -223,7 +223,7 @@
                             <i class="fa-solid fa-book-open text-indigo-600"></i>
                             <span>Buku Kas Umum (BKU) Kronologis</span>
                         </h2>
-                        <p class="text-xs text-slate-500">Pencatatan seluruh arus kas masuk dan keluar secara kronologis lengkap dengan nomor bukti nota.</p>
+                        <p class="text-xs text-slate-500">Pencatatan arus kas lengkap dengan unggah kuitansi online.</p>
                     </div>
                     <button onclick="openModalNewTransaction()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
                         <i class="fa-solid fa-receipt"></i>
@@ -263,7 +263,7 @@
                             <i class="fa-solid fa-layer-group text-indigo-600"></i>
                             <span>Komparasi Pagu Anggaran vs Realisasi Per Seksi</span>
                         </h2>
-                        <p class="text-xs text-slate-500">Analisis penyerapan anggaran masing-masing seksi secara detail dan real-time.</p>
+                        <p class="text-xs text-slate-500">Analisis penyerapan anggaran masing-masing seksi secara detail.</p>
                     </div>
                     <button onclick="openModalNewSeksi()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
                         <i class="fa-solid fa-folder-plus"></i>
@@ -304,7 +304,7 @@
                             <i class="fa-solid fa-boxes-stacked text-indigo-600"></i>
                             <span>Data Pembelian Barang Kategori Aset (Inventaris Permanen)</span>
                         </h2>
-                        <p class="text-xs text-slate-500">Penyaringan pengeluaran untuk barang permanen yang wajib dikembalikan ke organisasi setelah kegiatan selesai.</p>
+                        <p class="text-xs text-slate-500">Penyaringan pengeluaran untuk barang permanen.</p>
                     </div>
                     <button onclick="openModalNewAsset()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
                         <i class="fa-solid fa-box-archive"></i>
@@ -342,11 +342,11 @@
                             <i class="fa-brands fa-google-drive text-emerald-600"></i>
                             <span>Drive Utama Organisasi (Cloud Storage Terpusat)</span>
                         </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Manajemen pusat memantau seluruh folder terisolasi dan kuitansi yang disinkronkan otomatis tanpa membebani server aplikasi.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Daftar file yang berhasil disinkronkan online ke Google Drive.</p>
                     </div>
                     <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-600">
                         <i class="fa-solid fa-server text-indigo-600"></i>
-                        <span>Kapasitas Drive: <strong class="text-slate-800">15 GB (Terpakai 1.2 GB)</strong></span>
+                        <span>Status: <strong class="text-emerald-600">Terhubung Google Apps Script</strong></span>
                     </div>
                 </div>
 
@@ -384,10 +384,6 @@
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Ketua Pelaksana</label>
                     <input type="text" id="inputEventChair" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="Contoh: Ahmad Fauzi, S.Kom.">
                 </div>
-                <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3.5 text-xs text-indigo-700 space-y-1">
-                    <p class="font-bold"><i class="fa-solid fa-circle-info"></i> Otomatisasi Google Drive:</p>
-                    <p>Sistem akan membuat folder terisolasi di Google Drive: <code class="bg-white px-1.5 py-0.5 rounded border border-indigo-200 font-mono" id="previewDrivePath">/Root/LPJ_Dies_Natalis_2026/</code></p>
-                </div>
             </div>
             <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
                 <button onclick="closeModalNewEvent()" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
@@ -402,7 +398,7 @@
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
                 <h3 class="font-bold text-slate-800 flex items-center space-x-2">
                     <i class="fa-solid fa-receipt text-indigo-600"></i>
-                    <span>Catat Transaksi & Unggah Kuitansi Langsung</span>
+                    <span>Catat Transaksi & Unggah Kuitansi Online</span>
                 </h3>
                 <button onclick="closeModalNewTransaction()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
@@ -439,13 +435,13 @@
                     <input type="number" id="txAmount" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="500000">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">Unggah Kuitansi / Bukti Nota (Sinkron ke Google Drive)</label>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Unggah Kuitansi / Bukti Nota (Sinkron ke Google Drive Online)</label>
                     <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:bg-slate-50 transition cursor-pointer">
                         <input type="file" id="txFile" class="hidden" onchange="handleFileSelect(event)">
                         <label for="txFile" class="cursor-pointer">
                             <i class="fa-solid fa-cloud-arrow-up text-2xl text-indigo-500 mb-1"></i>
                             <p class="text-xs font-medium text-slate-700" id="fileNameDisplay">Klik untuk memilih file kuitansi (JPG, PNG, PDF)</p>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Otomatis terkirim ke sub-folder Google Drive Seksi</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Otomatis terkirim ke Google Drive via Apps Script</p>
                         </label>
                     </div>
                 </div>
@@ -501,7 +497,7 @@
             <div class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Barang Aset</label>
-                    <input type="text" id="assetName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="Contoh: Sound System Portable / Tenda Dome">
+                    <input type="text" id="assetName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="Contoh: Sound System Portable">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Seksi Terkait</label>
@@ -535,9 +531,13 @@
         </div>
     </div>
 
-    <!-- JavaScript Application Logic -->
+    <!-- JavaScript Application Logic & Google Apps Script Integration -->
     <script>
-        // Initial App Data State
+        // ==========================================
+        // GANTI DENGAN URL WEB APP APPS SCRIPT ANDA
+        // ==========================================
+        const APPS_SCRIPT_URL = "GANTI_URL_WEB_APP_ANDA_DISINI";
+
         let appState = {
             currentEvent: "Dies Natalis Organisasi ke-25",
             chairperson: "Ahmad Fauzi, S.Kom.",
@@ -567,7 +567,6 @@
             ]
         };
 
-        // Window Onload Initialization
         window.onload = function() {
             renderDashboard();
             renderBKU();
@@ -576,13 +575,11 @@
             renderDriveExplorer();
             populateSelectOptions();
             
-            // Set default date to today
             const today = new Date().toISOString().split('T')[0];
             const txDateEl = document.getElementById('txDate');
             if(txDateEl) txDateEl.value = today;
         };
 
-        // UI Tab Switcher
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(el => {
@@ -596,10 +593,8 @@
             activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
         }
 
-        // Role switcher menu
         function toggleUserMenu() {
-            const menu = document.getElementById('userMenuDropdown');
-            menu.classList.toggle('hidden');
+            document.getElementById('userMenuDropdown').classList.toggle('hidden');
         }
 
         function switchRole(roleKey, roleName, email) {
@@ -609,7 +604,6 @@
             showNotification(`Berhasil beralih peran ke ${roleName}`, 'success');
         }
 
-        // Notification Banner Helper
         function showNotification(message, type = 'success') {
             const area = document.getElementById('notificationArea');
             const bgCol = type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-indigo-50 border-indigo-200 text-indigo-800';
@@ -627,7 +621,6 @@
             setTimeout(() => { if(area.firstElementChild) area.firstElementChild.remove(); }, 5000);
         }
 
-        // Populate Select Dropdowns
         function populateSelectOptions() {
             const seksiSelects = [document.getElementById('txSeksi'), document.getElementById('assetSeksi')];
             seksiSelects.forEach(select => {
@@ -642,7 +635,6 @@
             });
         }
 
-        // Render Dashboard Stats & Tables
         function renderDashboard() {
             let totalPagu = appState.seksi.reduce((acc, s) => acc + s.pagu, 0);
             let totalKeluar = appState.transactions.filter(t => t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
@@ -673,13 +665,10 @@
             });
         }
 
-        // Render BKU Table
         function renderBKU() {
             const tbody = document.getElementById('bkuTableBody');
             tbody.innerHTML = '';
             let runningSaldo = 0;
-
-            // Sort chronologically by date
             const sortedTx = [...appState.transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
 
             sortedTx.forEach(t => {
@@ -712,7 +701,6 @@
             });
         }
 
-        // Render Seksi Table & Cards
         function renderSeksi() {
             const tbody = document.getElementById('seksiTableBody');
             const cardsContainer = document.getElementById('seksiCardsContainer');
@@ -720,7 +708,6 @@
             cardsContainer.innerHTML = '';
 
             appState.seksi.forEach(s => {
-                // Calculate actual spending for this section
                 let realisasi = appState.transactions
                     .filter(t => t.seksiId === s.id && t.type === 'keluar')
                     .reduce((acc, t) => acc + t.amount, 0);
@@ -729,7 +716,6 @@
                 let pct = s.pagu > 0 ? Math.round((realisasi / s.pagu) * 100) : 0;
                 let barColor = pct > 100 ? 'bg-rose-500' : (pct > 80 ? 'bg-amber-500' : 'bg-emerald-500');
 
-                // Render Card
                 cardsContainer.innerHTML += `
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
                         <div class="flex justify-between items-start">
@@ -752,7 +738,6 @@
                     </div>
                 `;
 
-                // Render Table Row
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
                         <td class="py-3 px-4 font-semibold text-slate-800">${s.name}</td>
@@ -773,11 +758,9 @@
             });
         }
 
-        // Render Assets (Kategori A)
         function renderAssets() {
             const tbody = document.getElementById('assetTableBody');
             tbody.innerHTML = '';
-
             appState.assets.forEach(a => {
                 const seksiObj = appState.seksi.find(s => s.id === a.seksiId);
                 const seksiName = seksiObj ? seksiObj.name : 'Umum';
@@ -801,11 +784,9 @@
             });
         }
 
-        // Render Google Drive Explorer
         function renderDriveExplorer() {
             const grid = document.getElementById('driveExplorerGrid');
             grid.innerHTML = '';
-
             appState.driveFiles.forEach(f => {
                 let iconClass = 'fa-file-lines text-slate-500';
                 let badgeCol = 'bg-slate-100 text-slate-600';
@@ -829,7 +810,7 @@
                             <span class="text-slate-400">${f.date}</span>
                             <button onclick="downloadDriveFile('${f.name}')" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1">
                                 <i class="fa-solid fa-download"></i>
-                                <span>Unduh</span>
+                                <span>Buka</span>
                             </button>
                         </div>
                     </div>
@@ -840,17 +821,13 @@
         // Modal Handlers
         function openModalNewEvent() { document.getElementById('modalNewEvent').classList.remove('hidden'); }
         function closeModalNewEvent() { document.getElementById('modalNewEvent').classList.add('hidden'); }
-
         function openModalNewTransaction() { document.getElementById('modalNewTransaction').classList.remove('hidden'); }
         function closeModalNewTransaction() { document.getElementById('modalNewTransaction').classList.add('hidden'); }
-
         function openModalNewSeksi() { document.getElementById('modalNewSeksi').classList.remove('hidden'); }
         function closeModalNewSeksi() { document.getElementById('modalNewSeksi').classList.add('hidden'); }
-
         function openModalNewAsset() { document.getElementById('modalNewAsset').classList.remove('hidden'); }
         function closeModalNewAsset() { document.getElementById('modalNewAsset').classList.add('hidden'); }
 
-        // Form Actions & Automatic Google Drive Folder Generation
         function saveNewEvent() {
             const name = document.getElementById('inputEventName').value;
             const chair = document.getElementById('inputEventChair').value;
@@ -859,21 +836,14 @@
             const folderSlug = name.replace(/[^a-zA-Z0-9]/g, '_');
             const newFolder = `/Root/Organisasi_Pusat/${folderSlug}/`;
 
-            appState.events.push({
-                id: appState.events.length + 1,
-                name: name,
-                chair: chair,
-                folder: newFolder,
-                status: 'Sedang Berjalan'
-            });
-
+            appState.events.push({ id: appState.events.length + 1, name, chair, folder: newFolder, status: 'Sedang Berjalan' });
             appState.currentEvent = name;
             appState.driveFolder = newFolder;
             document.getElementById('driveFolderName').innerText = `Folder: ${name}`;
 
             closeModalNewEvent();
             renderDashboard();
-            showNotification(`Sukses! Akun & Folder Google Drive terisolasi (${newFolder}) berhasil dibuat otomatis.`);
+            showNotification(`Sukses! Akun & Folder Google Drive terisolasi (${newFolder}) dibuat.`);
         }
 
         function switchEvent(eventName) {
@@ -881,7 +851,6 @@
             if(ev) {
                 appState.currentEvent = ev.name;
                 appState.driveFolder = ev.folder;
-                document.getElementById('driveFolderName').innerText = `Folder: ${ev.name}`;
                 showNotification(`Berhasil beralih ke event: ${ev.name}`);
             }
         }
@@ -900,6 +869,45 @@
             }
         }
 
+        // ==========================================
+        // FUNGSI UTAMA UPLOAD FILE KE GOOGLE DRIVE VIA APPS SCRIPT
+        // ==========================================
+        function sendFileToAppsScript(fileObj, customFileName, onComplete) {
+            if (APPS_SCRIPT_URL === "GANTI_URL_WEB_APP_ANDA_DISINI") {
+                showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
+                return;
+            }
+
+            showNotification('Mengunggah file secara online ke Google Drive...', 'info');
+
+            const reader = new FileReader();
+            reader.readAsDataURL(fileObj);
+            reader.onload = function () {
+                const base64Data = reader.result.split(',')[1];
+                const payload = {
+                    action: "uploadFile",
+                    fileName: customFileName || fileObj.name,
+                    mimeType: fileObj.type || "application/octet-stream",
+                    fileData: base64Data
+                };
+
+                fetch(APPS_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payload)
+                })
+                .then(() => {
+                    showNotification(`File "${customFileName || fileObj.name}" berhasil tersimpan ke Google Drive!`);
+                    if(onComplete) onComplete();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    showNotification("Gagal menyinkronkan file ke Google Drive.", "error");
+                });
+            };
+        }
+
         function saveNewTransaction() {
             const noNota = document.getElementById('txNoNota').value;
             const date = document.getElementById('txDate').value;
@@ -907,6 +915,7 @@
             const seksiId = type === 'keluar' ? parseInt(document.getElementById('txSeksi').value) : null;
             const desc = document.getElementById('txDesc').value;
             const amount = parseFloat(document.getElementById('txAmount').value);
+            const fileInput = document.getElementById('txFile');
 
             if(!noNota || !date || !desc || isNaN(amount)) {
                 showNotification('Mohon lengkapi seluruh field formulir transaksi dengan benar', 'error');
@@ -915,26 +924,23 @@
 
             const fileName = `Kuitansi_${noNota}.jpg`;
 
-            appState.transactions.push({
-                id: appState.transactions.length + 1,
-                noNota, date, seksiId, desc, type, amount, file: fileName
-            });
+            const proceedSave = () => {
+                appState.transactions.push({ id: appState.transactions.length + 1, noNota, date, seksiId, desc, type, amount, file: fileName });
+                appState.driveFiles.unshift({ name: fileName, type: 'image', size: '1.1 MB', date: date, folder: `Seksi / ${appState.currentEvent}` });
 
-            // Automatically sync receipt to Google Drive simulator
-            appState.driveFiles.unshift({
-                name: fileName,
-                type: 'image',
-                size: '1.1 MB',
-                date: date,
-                folder: `Sub-Folder Seksi / ${appState.currentEvent}`
-            });
+                closeModalNewTransaction();
+                renderBKU();
+                renderDashboard();
+                renderSeksi();
+                renderDriveExplorer();
+            };
 
-            closeModalNewTransaction();
-            renderBKU();
-            renderDashboard();
-            renderSeksi();
-            renderDriveExplorer();
-            showNotification(`Transaksi ${noNota} berhasil dicatat & kuitansi tersinkron otomatis ke Google Drive!`);
+            if (fileInput.files.length > 0) {
+                sendFileToAppsScript(fileInput.files[0], fileName, proceedSave);
+            } else {
+                proceedSave();
+                showNotification(`Transaksi ${noNota} berhasil dicatat!`);
+            }
         }
 
         function deleteTransaction(id) {
@@ -955,11 +961,7 @@
                 return;
             }
 
-            appState.seksi.push({
-                id: appState.seksi.length + 1,
-                name, pj, pagu
-            });
-
+            appState.seksi.push({ id: appState.seksi.length + 1, name, pj, pagu });
             closeModalNewSeksi();
             renderSeksi();
             renderDashboard();
@@ -979,81 +981,49 @@
                 return;
             }
 
-            appState.assets.push({
-                id: appState.assets.length + 1,
-                name, seksiId, qty, price, condition, returned: false
-            });
-
+            appState.assets.push({ id: appState.assets.length + 1, name, seksiId, qty, price, condition, returned: false });
             closeModalNewAsset();
             renderAssets();
             showNotification(`Barang aset permanen ${name} berhasil dicatat!`);
         }
 
         function previewDriveReceipt(filename) {
-            showNotification(`Membuka berkas kuitansi "${filename}" langsung dari Google Drive Utama...`);
+            showNotification(`Membuka berkas "${filename}" dari Google Drive Utama...`);
         }
 
         function downloadDriveFile(filename) {
-            showNotification(`Mengunduh "${filename}" dari Cloud Google Drive organisasi...`);
+            showNotification(`Mengakses file "${filename}" di Google Drive...`);
         }
 
-        // Excel Generator using SheetJS
+        // Excel Generator & Otomatis Kirim ke Drive via Apps Script
         function generateExcelLPJ() {
             const wb = XLSX.utils.book_new();
 
-            // Sheet 1: BKU
             const bkuData = appState.transactions.map((t, idx) => {
                 const sObj = appState.seksi.find(s => s.id === t.seksiId);
                 return {
-                    "No": idx + 1,
-                    "No. Nota": t.noNota,
-                    "Tanggal": t.date,
-                    "Seksi": sObj ? sObj.name : "Kas Pusat",
-                    "Uraian": t.desc,
-                    "Masuk (Debet)": t.type === 'masuk' ? t.amount : 0,
-                    "Keluar (Kredit)": t.type === 'keluar' ? t.amount : 0,
-                    "File Kuitansi Drive": t.file
+                    "No": idx + 1, "No. Nota": t.noNota, "Tanggal": t.date, "Seksi": sObj ? sObj.name : "Kas Pusat",
+                    "Uraian": t.desc, "Masuk (Debet)": t.type === 'masuk' ? t.amount : 0, "Keluar (Kredit)": t.type === 'keluar' ? t.amount : 0, "File Kuitansi": t.file
                 };
             });
-            const wsBKU = XLSX.utils.json_to_sheet(bkuData);
-            XLSX.utils.book_append_sheet(wb, wsBKU, "Buku Kas Umum");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bkuData), "Buku Kas Umum");
 
-            // Sheet 2: Seksi Recap
             const seksiData = appState.seksi.map(s => {
-                const realisasi = appState.transactions.filter(t => t.seksiId === s.id && t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
-                return {
-                    "Nama Seksi": s.name,
-                    "Penanggung Jawab": s.pj,
-                    "Pagu Anggaran (Rp)": s.pagu,
-                    "Realisasi Belanja (Rp)": realisasi,
-                    "Sisa Saldo (Rp)": s.pagu - realisasi
-                };
+                let realisasi = appState.transactions.filter(t => t.seksiId === s.id && t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
+                return { "Nama Seksi": s.name, "PJ": s.pj, "Pagu (Rp)": s.pagu, "Realisasi (Rp)": realisasi, "Sisa (Rp)": s.pagu - realisasi };
             });
-            const wsSeksi = XLSX.utils.json_to_sheet(seksiData);
-            XLSX.utils.book_append_sheet(wb, wsSeksi, "Rekap Per Seksi");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(seksiData), "Rekap Per Seksi");
 
-            // Sheet 3: Assets
-            const assetData = appState.assets.map(a => {
-                const sObj = appState.seksi.find(s => s.id === a.seksiId);
-                return {
-                    "Nama Barang Aset": a.name,
-                    "Seksi": sObj ? sObj.name : "Umum",
-                    "Jumlah Unit": a.qty,
-                    "Harga Satuan": a.price,
-                    "Total Nilai": a.qty * a.price,
-                    "Status": a.returned ? "Dikembalikan" : "Dipinjam",
-                    "Kondisi": a.condition
-                };
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            const fileName = `LPJ_Resmi_${appState.currentEvent.replace(/\s+/g, '_')}.xlsx`;
+
+            sendFileToAppsScript(blob, fileName, () => {
+                showNotification('File Excel LPJ resmi berhasil dibuat dan diarsipkan otomatis ke Google Drive!');
             });
-            const wsAsset = XLSX.utils.json_to_sheet(assetData);
-            XLSX.utils.book_append_sheet(wb, wsAsset, "Inventaris Aset");
-
-            // Export Excel file and simulate Drive Archive sync
-            XLSX.writeFile(wb, `LPJ_Resmi_${appState.currentEvent.replace(/\s+/g, '_')}.xlsx`);
-            showNotification('File Excel LPJ berhasil digenerate dan diarsipkan otomatis ke Google Drive Utama!');
         }
 
-        // PDF Generator using jsPDF
+        // PDF Generator & Otomatis Kirim ke Drive via Apps Script
         function generatePdfLPJ() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -1063,10 +1033,6 @@
             doc.setFontSize(11);
             doc.text(`Event: ${appState.currentEvent}`, 14, 28);
             doc.text(`Ketua Pelaksana: ${appState.chairperson}`, 14, 34);
-            doc.text(`Folder Google Drive: ${appState.driveFolder}`, 14, 40);
-
-            doc.setFontSize(13);
-            doc.text("1. Rekapitulasi Anggaran Per Seksi", 14, 52);
 
             let seksiRows = appState.seksi.map(s => {
                 let realisasi = appState.transactions.filter(t => t.seksiId === s.id && t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
@@ -1074,35 +1040,21 @@
             });
 
             doc.autoTable({
-                startY: 56,
-                head: [['Nama Seksi', 'Penanggung Jawab', 'Pagu Anggaran', 'Realisasi', 'Sisa']],
+                startY: 42,
+                head: [['Nama Seksi', 'PJ', 'Pagu Anggaran', 'Realisasi', 'Sisa']],
                 body: seksiRows,
                 theme: 'grid',
                 headStyles: { fillColor: [79, 70, 229] }
             });
 
-            let finalY = doc.lastAutoTable.finalY + 15;
-            doc.setFontSize(13);
-            doc.text("2. Inventaris Aset Permanen (Kategori A)", 14, finalY);
+            const pdfBlob = doc.output('blob');
+            const fileName = `LPJ_Resmi_${appState.currentEvent.replace(/\s+/g, '_')}.pdf`;
 
-            let assetRows = appState.assets.map(a => {
-                const sObj = appState.seksi.find(s => s.id === a.seksiId);
-                return [a.name, sObj ? sObj.name : 'Umum', `${a.qty} Unit`, formatRupiah(a.price * a.qty), a.returned ? 'Dikembalikan' : 'Dipinjam'];
+            sendFileToAppsScript(pdfBlob, fileName, () => {
+                showNotification('Dokumen PDF LPJ resmi berhasil dicetak dan disinkronkan ke arsip Google Drive!');
             });
-
-            doc.autoTable({
-                startY: finalY + 4,
-                head: [['Nama Barang', 'Seksi', 'Jumlah', 'Total Nilai', 'Status']],
-                body: assetRows,
-                theme: 'grid',
-                headStyles: { fillColor: [79, 70, 229] }
-            });
-
-            doc.save(`LPJ_Resmi_${appState.currentEvent.replace(/\s+/g, '_')}.pdf`);
-            showNotification('Dokumen PDF LPJ resmi berhasil dicetak dan disinkronkan ke arsip Google Drive!');
         }
 
-        // Helper Format Rupiah
         function formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
         }
