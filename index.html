@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem LPJ Terpusat Google Drive Organisasi</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS for Excel generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 font-sans antialiased flex flex-col">
+
+    <!-- Top Navbar -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2 rounded-lg backdrop-blur">
+                    <i class="fa-brands fa-google-drive text-emerald-400 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight">LPJ-Cloud Organisasi</h1>
+                    <p class="text-xs text-indigo-200">Sinkronisasi Terpusat Google Drive</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div id="driveStatusBadge" class="hidden sm:flex items-center space-x-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Drive Terhubung: <strong id="driveFolderName">Pusat_Organisasi_Drive</strong></span>
+                </div>
+                <div class="relative">
+                    <button onclick="toggleUserMenu()" class="flex items-center space-x-2 bg-indigo-800 hover:bg-indigo-700 px-3 py-1.5 rounded-lg text-sm transition">
+                        <i class="fa-solid fa-user-shield text-indigo-300"></i>
+                        <span id="activeUserRoleDisplay" class="font-medium">Super Admin</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-indigo-300"></i>
+                    </button>
+                    <!-- Dropdown Role Switcher -->
+                    <div id="userMenuDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl py-2 text-slate-700 border border-slate-100 z-50">
+                        <div class="px-4 py-2 border-b border-slate-100">
+                            <p class="text-xs text-slate-400">Masuk Sebagai:</p>
+                            <p id="currentEmail" class="text-sm font-semibold text-slate-800 truncate">admin@organisasi.or.id</p>
+                        </div>
+                        <button onclick="switchRole('admin', 'Super Admin Organisasi', 'admin@organisasi.or.id')" class="w-full text-left px-4 py-2 text-sm hover:bg-indigo-50 flex items-center space-x-2">
+                            <i class="fa-solid fa-user-gear text-indigo-600 w-5"></i>
+                            <span>Super Admin (Pusat)</span>
+                        </button>
+                        <button onclick="switchRole('panitia', 'Panitia Seksi Acara', 'panitia.seksi@organisasi.or.id')" class="w-full text-left px-4 py-2 text-sm hover:bg-indigo-50 flex items-center space-x-2">
+                            <i class="fa-solid fa-user-pen text-indigo-600 w-5"></i>
+                            <span>Panitia Pelaksana / Seksi</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main App Container -->
+    <div class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col">
+        
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-4 mb-6">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 bg-indigo-600 text-white shadow-sm">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Dashboard Event</span>
+            </button>
+            <button onclick="switchTab('bku')" id="tab-bku" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                <i class="fa-solid fa-book"></i>
+                <span>Buku Kas Umum (BKU)</span>
+            </button>
+            <button onclick="switchTab('seksi')" id="tab-seksi" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Rekap Per Seksi</span>
+            </button>
+            <button onclick="switchTab('aset')" id="tab-aset" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>Inventaris Aset (Kat. A)</span>
+            </button>
+            <button onclick="switchTab('drive')" id="tab-drive" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                <i class="fa-brands fa-google-drive text-emerald-600"></i>
+                <span>Simulasi Google Drive</span>
+            </button>
+        </div>
+
+        <!-- Notification Banner Container -->
+        <div id="notificationArea" class="mb-6"></div>
+
+        <!-- TAB 1: DASHBOARD EVENT & KEPANITIAAN -->
+        <div id="content-dashboard" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-calendar-star"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-400">Total Pagu Anggaran</p>
+                        <h3 id="statTotalPagu" class="text-lg font-bold text-slate-800">Rp 0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-400">Total Realisasi Belanja</p>
+                        <h3 id="statTotalRealisasi" class="text-lg font-bold text-slate-800">Rp 0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-400">Sisa Saldo Kas</p>
+                        <h3 id="statTotalSaldo" class="text-lg font-bold text-slate-800">Rp 0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-folder-tree"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-400">Folder Drive Terisolasi</p>
+                        <h3 id="statFolderCount" class="text-lg font-bold text-slate-800">1 Aktif</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Management & Setup Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-sliders text-indigo-600"></i>
+                            <span>Manajemen Kepanitiaan & Folder Otomatis Google Drive</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Buat event baru atau kelola akun kepanitiaan dengan folder terisolasi otomatis.</p>
+                    </div>
+                    <button onclick="openModalNewEvent()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm shadow-indigo-100">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Buat Kepanitiaan Baru</span>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                    <th class="pb-3 px-4">Nama Event / Kepanitiaan</th>
+                                    <th class="pb-3 px-4">Ketua Pelaksana</th>
+                                    <th class="pb-3 px-4">Folder Drive Terisolasi</th>
+                                    <th class="pb-3 px-4">Status LPJ</th>
+                                    <th class="pb-3 px-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventTableBody" class="divide-y divide-slate-100 text-sm">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generator LPJ Utama & Aksi Ekspor -->
+            <div class="bg-gradient-to-r from-indigo-900 to-indigo-800 rounded-2xl shadow-lg p-6 text-white flex flex-col md:flex-row justify-between items-center gap-6">
+                <div>
+                    <h3 class="text-xl font-bold flex items-center space-x-2">
+                        <i class="fa-solid fa-file-shield text-emerald-400"></i>
+                        <span>Generator Dokumen LPJ Resmi ke Google Drive Pusat</span>
+                    </h3>
+                    <p class="text-indigo-200 text-sm mt-1 max-w-2xl">
+                        Sistem menyusun rekapitulasi lengkap (BKU, Rekap Per Seksi, dan Inventaris Aset) dan otomatis mengunggah arsip PDF/Excel ke Google Drive Utama organisasi sebagai arsip permanen.
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="generateExcelLPJ()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition flex items-center space-x-2 shadow-md">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Unduh / Simpan Excel</span>
+                    </button>
+                    <button onclick="generatePdfLPJ()" class="bg-rose-600 hover:bg-rose-500 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition flex items-center space-x-2 shadow-md">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>Cetak / Arsipkan PDF</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: BUKU KAS UMUM (BKU) -->
+        <div id="content-bku" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-book-open text-indigo-600"></i>
+                            <span>Buku Kas Umum (BKU) Kronologis</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Pencatatan seluruh arus kas masuk dan keluar secara kronologis lengkap dengan nomor bukti nota.</p>
+                    </div>
+                    <button onclick="openModalNewTransaction()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>Tambah Transaksi & Unggah Kuitansi</span>
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                <th class="pb-3 px-4">No. Bukti / Nota</th>
+                                <th class="pb-3 px-4">Tanggal</th>
+                                <th class="pb-3 px-4">Seksi / Unit</th>
+                                <th class="pb-3 px-4">Uraian Transaksi</th>
+                                <th class="pb-3 px-4 text-right">Masuk (Debet)</th>
+                                <th class="pb-3 px-4 text-right">Keluar (Kredit)</th>
+                                <th class="pb-3 px-4 text-right">Saldo (Rp)</th>
+                                <th class="pb-3 px-4 text-center">Kuitansi Drive</th>
+                                <th class="pb-3 px-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bkuTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: REKAPITULASI PER SEKSI -->
+        <div id="content-seksi" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-layer-group text-indigo-600"></i>
+                            <span>Komparasi Pagu Anggaran vs Realisasi Per Seksi</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Analisis penyerapan anggaran masing-masing seksi secara detail dan real-time.</p>
+                    </div>
+                    <button onclick="openModalNewSeksi()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-folder-plus"></i>
+                        <span>Tambah Seksi Baru</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6" id="seksiCardsContainer">
+                    <!-- Dynamic Seksi Cards -->
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                <th class="pb-3 px-4">Nama Seksi</th>
+                                <th class="pb-3 px-4">Penanggung Jawab</th>
+                                <th class="pb-3 px-4 text-right">Pagu Anggaran</th>
+                                <th class="pb-3 px-4 text-right">Realisasi Belanja</th>
+                                <th class="pb-3 px-4 text-right">Sisa / Selisih</th>
+                                <th class="pb-3 px-4 text-center">Persentase Penyerapan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="seksiTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: INVENTARIS ASET (KATEGORI A) -->
+        <div id="content-aset" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-boxes-stacked text-indigo-600"></i>
+                            <span>Data Pembelian Barang Kategori Aset (Inventaris Permanen)</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Penyaringan pengeluaran untuk barang permanen yang wajib dikembalikan ke organisasi setelah kegiatan selesai.</p>
+                    </div>
+                    <button onclick="openModalNewAsset()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-box-archive"></i>
+                        <span>Catat Pembelian Aset</span>
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                <th class="pb-3 px-4">Nama Barang Aset</th>
+                                <th class="pb-3 px-4">Kategori / Seksi</th>
+                                <th class="pb-3 px-4 text-center">Jumlah Unit</th>
+                                <th class="pb-3 px-4 text-right">Harga Satuan (Rp)</th>
+                                <th class="pb-3 px-4 text-right">Total Nilai (Rp)</th>
+                                <th class="pb-3 px-4 text-center">Status Pengembalian</th>
+                                <th class="pb-3 px-4 text-center">Kondisi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: SIMULASI GOOGLE DRIVE PUSAT -->
+        <div id="content-drive" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-brands fa-google-drive text-emerald-600"></i>
+                            <span>Drive Utama Organisasi (Cloud Storage Terpusat)</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Manajemen pusat memantau seluruh folder terisolasi dan kuitansi yang disinkronkan otomatis tanpa membebani server aplikasi.</p>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-600">
+                        <i class="fa-solid fa-server text-indigo-600"></i>
+                        <span>Kapasitas Drive: <strong class="text-slate-800">15 GB (Terpakai 1.2 GB)</strong></span>
+                    </div>
+                </div>
+
+                <!-- Breadcrumb -->
+                <div class="flex items-center space-x-2 text-sm text-slate-600 bg-slate-50 p-3 rounded-xl mb-6 border border-slate-100">
+                    <i class="fa-solid fa-folder-open text-amber-500"></i>
+                    <span id="driveBreadcrumb" class="font-semibold text-slate-800">Root / Organisasi_Pusat / LPJ_Event_2026</span>
+                </div>
+
+                <!-- Drive Folder / File Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4" id="driveExplorerGrid">
+                    <!-- Dynamic Explorer Items -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL: BUAT KEPANITIAAN / EVENT BARU -->
+    <div id="modalNewEvent" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-folder-plus text-indigo-600"></i>
+                    <span>Buat Akun & Folder Event Otomatis</span>
+                </h3>
+                <button onclick="closeModalNewEvent()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Event / Kepanitiaan</label>
+                    <input type="text" id="inputEventName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="Contoh: Dies Natalis Organisasi ke-25">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Ketua Pelaksana</label>
+                    <input type="text" id="inputEventChair" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="Contoh: Ahmad Fauzi, S.Kom.">
+                </div>
+                <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3.5 text-xs text-indigo-700 space-y-1">
+                    <p class="font-bold"><i class="fa-solid fa-circle-info"></i> Otomatisasi Google Drive:</p>
+                    <p>Sistem akan membuat folder terisolasi di Google Drive: <code class="bg-white px-1.5 py-0.5 rounded border border-indigo-200 font-mono" id="previewDrivePath">/Root/LPJ_Dies_Natalis_2026/</code></p>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+                <button onclick="closeModalNewEvent()" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+                <button onclick="saveNewEvent()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white shadow-sm">Buat & Sinkronisasi Drive</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TAMBAH TRANSAKSI BKU & UPLOAD KUITANSI -->
+    <div id="modalNewTransaction" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-receipt text-indigo-600"></i>
+                    <span>Catat Transaksi & Unggah Kuitansi Langsung</span>
+                </h3>
+                <button onclick="closeModalNewTransaction()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">No. Bukti / Nota</label>
+                        <input type="text" id="txNoNota" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="NOTA-001">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Tanggal</label>
+                        <input type="date" id="txDate" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Jenis Transaksi</label>
+                    <select id="txType" onchange="toggleTxType()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600">
+                        <option value="keluar">Pengeluaran (Belanja Seksi)</option>
+                        <option value="masuk">Pemasukan (Dana Kas / Sponsor)</option>
+                    </select>
+                </div>
+                <div id="txSeksiWrapper">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Seksi Terkait</label>
+                    <select id="txSeksi" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Uraian / Keterangan Transaksi</label>
+                    <input type="text" id="txDesc" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="Contoh: Pembelian Konsumsi Rapat Pleno">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nominal (Rp)</label>
+                    <input type="number" id="txAmount" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="500000">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Unggah Kuitansi / Bukti Nota (Sinkron ke Google Drive)</label>
+                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:bg-slate-50 transition cursor-pointer">
+                        <input type="file" id="txFile" class="hidden" onchange="handleFileSelect(event)">
+                        <label for="txFile" class="cursor-pointer">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-indigo-500 mb-1"></i>
+                            <p class="text-xs font-medium text-slate-700" id="fileNameDisplay">Klik untuk memilih file kuitansi (JPG, PNG, PDF)</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Otomatis terkirim ke sub-folder Google Drive Seksi</p>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+                <button onclick="closeModalNewTransaction()" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+                <button onclick="saveNewTransaction()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white shadow-sm">Simpan & Sinkronkan Drive</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TAMBAH SEKSI BARU -->
+    <div id="modalNewSeksi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-layer-group text-indigo-600"></i>
+                    <span>Tambah Seksi Kepanitiaan Baru</span>
+                </h3>
+                <button onclick="closeModalNewSeksi()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Seksi / Bidang</label>
+                    <input type="text" id="inputSeksiName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="Contoh: Seksi Perlengkapan & Dekorasi">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Penanggung Jawab (PJ)</label>
+                    <input type="text" id="inputSeksiPJ" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="Contoh: Siti Aminah">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Alokasi Pagu Anggaran (Rp)</label>
+                    <input type="number" id="inputSeksiPagu" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="2500000">
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+                <button onclick="closeModalNewSeksi()" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+                <button onclick="saveNewSeksi()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white shadow-sm">Simpan Seksi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TAMBAH DATA PEMBELIAN ASET -->
+    <div id="modalNewAsset" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-boxes-stacked text-indigo-600"></i>
+                    <span>Catat Pembelian Barang Kategori Aset</span>
+                </h3>
+                <button onclick="closeModalNewAsset()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Barang Aset</label>
+                    <input type="text" id="assetName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="Contoh: Sound System Portable / Tenda Dome">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Seksi Terkait</label>
+                    <select id="assetSeksi" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Jumlah Unit</label>
+                        <input type="number" id="assetQty" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" value="1">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Harga Satuan (Rp)</label>
+                        <input type="number" id="assetPrice" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" placeholder="1500000">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Kondisi Barang</label>
+                    <select id="assetCondition" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600">
+                        <option value="Sangat Baik">Sangat Baik (Baru)</option>
+                        <option value="Baik">Baik</option>
+                        <option value="Perlu Perawatan">Perlu Perawatan</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+                <button onclick="closeModalNewAsset()" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+                <button onclick="saveNewAsset()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white shadow-sm">Simpan ke Aset Organisasi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Initial App Data State
+        let appState = {
+            currentEvent: "Dies Natalis Organisasi ke-25",
+            chairperson: "Ahmad Fauzi, S.Kom.",
+            driveFolder: "/Root/Organisasi_Pusat/Dies_Natalis_25/",
+            events: [
+                { id: 1, name: "Dies Natalis Organisasi ke-25", chair: "Ahmad Fauzi, S.Kom.", folder: "/Root/Organisasi_Pusat/Dies_Natalis_25/", status: "Sedang Berjalan" },
+                { id: 2, name: "Rapat Kerja Nasional (Rakernas) 2026", chair: "Siti Rahma, M.E.", folder: "/Root/Organisasi_Pusat/Rakernas_2026/", status: "Arsip / Selesai" }
+            ],
+            seksi: [
+                { id: 1, name: "Seksi Acara & Persidangan", pj: "Rian Hidayat", pagu: 3500000 },
+                { id: 2, name: "Seksi Konsumsi & Akomodasi", pj: "Nurul Aini", pagu: 4000000 },
+                { id: 3, name: "Seksi Perlengkapan & Dekorasi", pj: "Budi Santoso", pagu: 2500000 }
+            ],
+            transactions: [
+                { id: 1, noNota: "NOTA-001", date: "2026-03-01", seksiId: 1, desc: "Pencairan Dana Kas Awal Organisasi", type: "masuk", amount: 10000000, file: "kuitansi_awal.pdf" },
+                { id: 2, noNota: "NOTA-002", date: "2026-03-03", seksiId: 2, desc: "Belanja Konsumsi Rapat Pleno Panitia", type: "keluar", amount: 750000, file: "kuitansi_konsumsi.jpg" },
+                { id: 3, noNota: "NOTA-003", date: "2026-03-05", seksiId: 3, desc: "Penyewaan Tenda dan Sound System", type: "keluar", amount: 1800000, file: "kuitansi_sound.pdf" }
+            ],
+            assets: [
+                { id: 1, name: "Wireless Microphone Set (2 Unit)", seksiId: 3, qty: 1, price: 1200000, condition: "Sangat Baik", returned: true },
+                { id: 2, name: "Banner Spanduk Utama Kain (6x1m)", seksiId: 1, qty: 2, price: 350000, condition: "Baik", returned: false }
+            ],
+            driveFiles: [
+                { name: "Kuitansi_NOTA-002.jpg", type: "image", size: "1.4 MB", date: "2026-03-03", folder: "Sub-Folder Seksi Konsumsi" },
+                { name: "Kuitansi_NOTA-003.pdf", type: "pdf", size: "850 KB", date: "2026-03-05", folder: "Sub-Folder Seksi Perlengkapan" },
+                { name: "Draft_LPJ_Sementara.xlsx", type: "excel", size: "45 KB", date: "2026-03-06", folder: "Root Arsip LPJ" }
+            ]
+        };
+
+        // Window Onload Initialization
+        window.onload = function() {
+            renderDashboard();
+            renderBKU();
+            renderSeksi();
+            renderAssets();
+            renderDriveExplorer();
+            populateSelectOptions();
+            
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            const txDateEl = document.getElementById('txDate');
+            if(txDateEl) txDateEl.value = today;
+        };
+
+        // UI Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+                el.classList.add('bg-white', 'text-slate-600', 'hover:bg-slate-100', 'border', 'border-slate-200');
+            });
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.remove('bg-white', 'text-slate-600', 'hover:bg-slate-100', 'border', 'border-slate-200');
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+        }
+
+        // Role switcher menu
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenuDropdown');
+            menu.classList.toggle('hidden');
+        }
+
+        function switchRole(roleKey, roleName, email) {
+            document.getElementById('activeUserRoleDisplay').innerText = roleName;
+            document.getElementById('currentEmail').innerText = email;
+            document.getElementById('userMenuDropdown').classList.add('hidden');
+            showNotification(`Berhasil beralih peran ke ${roleName}`, 'success');
+        }
+
+        // Notification Banner Helper
+        function showNotification(message, type = 'success') {
+            const area = document.getElementById('notificationArea');
+            const bgCol = type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-indigo-50 border-indigo-200 text-indigo-800';
+            const icon = type === 'success' ? 'fa-circle-check text-emerald-600' : 'fa-circle-info text-indigo-600';
+            
+            area.innerHTML = `
+                <div class="${bgCol} border px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm animate-fade-in">
+                    <div class="flex items-center space-x-3 text-sm font-medium">
+                        <i class="fa-solid ${icon} text-lg"></i>
+                        <span>${message}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `;
+            setTimeout(() => { if(area.firstElementChild) area.firstElementChild.remove(); }, 5000);
+        }
+
+        // Populate Select Dropdowns
+        function populateSelectOptions() {
+            const seksiSelects = [document.getElementById('txSeksi'), document.getElementById('assetSeksi')];
+            seksiSelects.forEach(select => {
+                if(!select) return;
+                select.innerHTML = '';
+                appState.seksi.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = `${s.name} (PJ: ${s.pj})`;
+                    select.appendChild(opt);
+                });
+            });
+        }
+
+        // Render Dashboard Stats & Tables
+        function renderDashboard() {
+            let totalPagu = appState.seksi.reduce((acc, s) => acc + s.pagu, 0);
+            let totalKeluar = appState.transactions.filter(t => t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
+            let totalMasuk = appState.transactions.filter(t => t.type === 'masuk').reduce((acc, t) => acc + t.amount, 0);
+            let totalSaldo = totalMasuk - totalKeluar;
+
+            document.getElementById('statTotalPagu').innerText = formatRupiah(totalPagu);
+            document.getElementById('statTotalRealisasi').innerText = formatRupiah(totalKeluar);
+            document.getElementById('statTotalSaldo').innerText = formatRupiah(totalSaldo);
+            document.getElementById('statFolderCount').innerText = `${appState.events.length} Terisolasi`;
+
+            const tbody = document.getElementById('eventTableBody');
+            tbody.innerHTML = '';
+            appState.events.forEach(ev => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-semibold text-slate-800">${ev.name}</td>
+                        <td class="py-3 px-4 text-slate-600">${ev.chair}</td>
+                        <td class="py-3 px-4 font-mono text-xs text-indigo-600">${ev.folder}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${ev.status.includes('Berjalan') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'}">${ev.status}</span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="switchEvent('${ev.name}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">Pilih Event</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Render BKU Table
+        function renderBKU() {
+            const tbody = document.getElementById('bkuTableBody');
+            tbody.innerHTML = '';
+            let runningSaldo = 0;
+
+            // Sort chronologically by date
+            const sortedTx = [...appState.transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            sortedTx.forEach(t => {
+                if(t.type === 'masuk') runningSaldo += t.amount;
+                else runningSaldo -= t.amount;
+
+                const seksiObj = appState.seksi.find(s => s.id === t.seksiId);
+                const seksiName = seksiObj ? seksiObj.name : 'Kas Pusat';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-xs text-indigo-600">${t.noNota}</td>
+                        <td class="py-3 px-4 text-slate-600 text-xs">${t.date}</td>
+                        <td class="py-3 px-4 text-slate-700 font-medium">${seksiName}</td>
+                        <td class="py-3 px-4 text-slate-800">${t.desc}</td>
+                        <td class="py-3 px-4 text-right font-semibold text-emerald-600">${t.type === 'masuk' ? formatRupiah(t.amount) : '-'}</td>
+                        <td class="py-3 px-4 text-right font-semibold text-rose-600">${t.type === 'keluar' ? formatRupiah(t.amount) : '-'}</td>
+                        <td class="py-3 px-4 text-right font-bold text-slate-800">${formatRupiah(runningSaldo)}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span onclick="previewDriveReceipt('${t.file}')" class="inline-flex items-center space-x-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-2.5 py-1 rounded-lg text-xs font-semibold cursor-pointer border border-emerald-200 transition">
+                                <i class="fa-solid fa-file-arrow-down"></i>
+                                <span>Drive</span>
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-rose-600 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Render Seksi Table & Cards
+        function renderSeksi() {
+            const tbody = document.getElementById('seksiTableBody');
+            const cardsContainer = document.getElementById('seksiCardsContainer');
+            tbody.innerHTML = '';
+            cardsContainer.innerHTML = '';
+
+            appState.seksi.forEach(s => {
+                // Calculate actual spending for this section
+                let realisasi = appState.transactions
+                    .filter(t => t.seksiId === s.id && t.type === 'keluar')
+                    .reduce((acc, t) => acc + t.amount, 0);
+
+                let selisih = s.pagu - realisasi;
+                let pct = s.pagu > 0 ? Math.round((realisasi / s.pagu) * 100) : 0;
+                let barColor = pct > 100 ? 'bg-rose-500' : (pct > 80 ? 'bg-amber-500' : 'bg-emerald-500');
+
+                // Render Card
+                cardsContainer.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-slate-800 text-sm">${s.name}</h4>
+                            <span class="text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-600 font-medium">PJ: ${s.pj}</span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-slate-500">
+                                <span>Realisasi: <strong>${formatRupiah(realisasi)}</strong></span>
+                                <span>Pagu: ${formatRupiah(s.pagu)}</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="${barColor} h-full rounded-full transition-all duration-500" style="width: ${Math.min(pct, 100)}%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-xs pt-1 border-t border-slate-100 text-slate-500">
+                            <span>Penyerapan: <strong>${pct}%</strong></span>
+                            <span class="${selisih < 0 ? 'text-rose-600 font-bold' : 'text-emerald-600'}">Sisa: ${formatRupiah(selisih)}</span>
+                        </div>
+                    </div>
+                `;
+
+                // Render Table Row
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-semibold text-slate-800">${s.name}</td>
+                        <td class="py-3 px-4 text-slate-600">${s.pj}</td>
+                        <td class="py-3 px-4 text-right font-medium text-slate-700">${formatRupiah(s.pagu)}</td>
+                        <td class="py-3 px-4 text-right font-semibold text-rose-600">${formatRupiah(realisasi)}</td>
+                        <td class="py-3 px-4 text-right font-bold ${selisih < 0 ? 'text-rose-600' : 'text-emerald-600'}">${formatRupiah(selisih)}</td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="inline-flex items-center space-x-2">
+                                <span class="text-xs font-bold text-slate-700">${pct}%</span>
+                                <div class="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                    <div class="${barColor} h-full rounded-full" style="width: ${Math.min(pct, 100)}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Render Assets (Kategori A)
+        function renderAssets() {
+            const tbody = document.getElementById('assetTableBody');
+            tbody.innerHTML = '';
+
+            appState.assets.forEach(a => {
+                const seksiObj = appState.seksi.find(s => s.id === a.seksiId);
+                const seksiName = seksiObj ? seksiObj.name : 'Umum';
+                const totalNilai = a.qty * a.price;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-semibold text-slate-800">${a.name}</td>
+                        <td class="py-3 px-4 text-slate-600 text-xs">${seksiName}</td>
+                        <td class="py-3 px-4 text-center font-medium">${a.qty} Unit</td>
+                        <td class="py-3 px-4 text-right text-slate-700">${formatRupiah(a.price)}</td>
+                        <td class="py-3 px-4 text-right font-bold text-slate-900">${formatRupiah(totalNilai)}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${a.returned ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
+                                ${a.returned ? 'Sudah Dikembalikan' : 'Masih Dipinjam'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center text-xs font-medium text-slate-600">${a.condition}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Render Google Drive Explorer
+        function renderDriveExplorer() {
+            const grid = document.getElementById('driveExplorerGrid');
+            grid.innerHTML = '';
+
+            appState.driveFiles.forEach(f => {
+                let iconClass = 'fa-file-lines text-slate-500';
+                let badgeCol = 'bg-slate-100 text-slate-600';
+                if(f.type === 'image') { iconClass = 'fa-file-image text-amber-500'; badgeCol = 'bg-amber-50 text-amber-700'; }
+                if(f.type === 'pdf') { iconClass = 'fa-file-pdf text-rose-500'; badgeCol = 'bg-rose-50 text-rose-700'; }
+                if(f.type === 'excel') { iconClass = 'fa-file-excel text-emerald-600'; badgeCol = 'bg-emerald-50 text-emerald-700'; }
+
+                grid.innerHTML += `
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md transition">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="w-10 h-10 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-lg">
+                                    <i class="fa-solid ${iconClass}"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${badgeCol}">${f.size}</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm truncate" title="${f.name}">${f.name}</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5 truncate"><i class="fa-solid fa-folder text-amber-400"></i> ${f.folder}</p>
+                        </div>
+                        <div class="pt-3 mt-3 border-t border-slate-200 flex justify-between items-center text-xs">
+                            <span class="text-slate-400">${f.date}</span>
+                            <button onclick="downloadDriveFile('${f.name}')" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Unduh</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Modal Handlers
+        function openModalNewEvent() { document.getElementById('modalNewEvent').classList.remove('hidden'); }
+        function closeModalNewEvent() { document.getElementById('modalNewEvent').classList.add('hidden'); }
+
+        function openModalNewTransaction() { document.getElementById('modalNewTransaction').classList.remove('hidden'); }
+        function closeModalNewTransaction() { document.getElementById('modalNewTransaction').classList.add('hidden'); }
+
+        function openModalNewSeksi() { document.getElementById('modalNewSeksi').classList.remove('hidden'); }
+        function closeModalNewSeksi() { document.getElementById('modalNewSeksi').classList.add('hidden'); }
+
+        function openModalNewAsset() { document.getElementById('modalNewAsset').classList.remove('hidden'); }
+        function closeModalNewAsset() { document.getElementById('modalNewAsset').classList.add('hidden'); }
+
+        // Form Actions & Automatic Google Drive Folder Generation
+        function saveNewEvent() {
+            const name = document.getElementById('inputEventName').value;
+            const chair = document.getElementById('inputEventChair').value;
+            if(!name || !chair) { showNotification('Mohon lengkapi nama event dan ketua pelaksana', 'error'); return; }
+
+            const folderSlug = name.replace(/[^a-zA-Z0-9]/g, '_');
+            const newFolder = `/Root/Organisasi_Pusat/${folderSlug}/`;
+
+            appState.events.push({
+                id: appState.events.length + 1,
+                name: name,
+                chair: chair,
+                folder: newFolder,
+                status: 'Sedang Berjalan'
+            });
+
+            appState.currentEvent = name;
+            appState.driveFolder = newFolder;
+            document.getElementById('driveFolderName').innerText = `Folder: ${name}`;
+
+            closeModalNewEvent();
+            renderDashboard();
+            showNotification(`Sukses! Akun & Folder Google Drive terisolasi (${newFolder}) berhasil dibuat otomatis.`);
+        }
+
+        function switchEvent(eventName) {
+            const ev = appState.events.find(e => e.name === eventName);
+            if(ev) {
+                appState.currentEvent = ev.name;
+                appState.driveFolder = ev.folder;
+                document.getElementById('driveFolderName').innerText = `Folder: ${ev.name}`;
+                showNotification(`Berhasil beralih ke event: ${ev.name}`);
+            }
+        }
+
+        function toggleTxType() {
+            const type = document.getElementById('txType').value;
+            const wrapper = document.getElementById('txSeksiWrapper');
+            if(type === 'masuk') wrapper.classList.add('hidden');
+            else wrapper.classList.remove('hidden');
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if(file) {
+                document.getElementById('fileNameDisplay').innerText = `File dipilih: ${file.name}`;
+            }
+        }
+
+        function saveNewTransaction() {
+            const noNota = document.getElementById('txNoNota').value;
+            const date = document.getElementById('txDate').value;
+            const type = document.getElementById('txType').value;
+            const seksiId = type === 'keluar' ? parseInt(document.getElementById('txSeksi').value) : null;
+            const desc = document.getElementById('txDesc').value;
+            const amount = parseFloat(document.getElementById('txAmount').value);
+
+            if(!noNota || !date || !desc || isNaN(amount)) {
+                showNotification('Mohon lengkapi seluruh field formulir transaksi dengan benar', 'error');
+                return;
+            }
+
+            const fileName = `Kuitansi_${noNota}.jpg`;
+
+            appState.transactions.push({
+                id: appState.transactions.length + 1,
+                noNota, date, seksiId, desc, type, amount, file: fileName
+            });
+
+            // Automatically sync receipt to Google Drive simulator
+            appState.driveFiles.unshift({
+                name: fileName,
+                type: 'image',
+                size: '1.1 MB',
+                date: date,
+                folder: `Sub-Folder Seksi / ${appState.currentEvent}`
+            });
+
+            closeModalNewTransaction();
+            renderBKU();
+            renderDashboard();
+            renderSeksi();
+            renderDriveExplorer();
+            showNotification(`Transaksi ${noNota} berhasil dicatat & kuitansi tersinkron otomatis ke Google Drive!`);
+        }
+
+        function deleteTransaction(id) {
+            appState.transactions = appState.transactions.filter(t => t.id !== id);
+            renderBKU();
+            renderDashboard();
+            renderSeksi();
+            showNotification('Transaksi berhasil dihapus');
+        }
+
+        function saveNewSeksi() {
+            const name = document.getElementById('inputSeksiName').value;
+            const pj = document.getElementById('inputSeksiPJ').value;
+            const pagu = parseFloat(document.getElementById('inputSeksiPagu').value);
+
+            if(!name || !pj || isNaN(pagu)) {
+                showNotification('Mohon lengkapi seluruh field seksi', 'error');
+                return;
+            }
+
+            appState.seksi.push({
+                id: appState.seksi.length + 1,
+                name, pj, pagu
+            });
+
+            closeModalNewSeksi();
+            renderSeksi();
+            renderDashboard();
+            populateSelectOptions();
+            showNotification(`Seksi ${name} berhasil ditambahkan!`);
+        }
+
+        function saveNewAsset() {
+            const name = document.getElementById('assetName').value;
+            const seksiId = parseInt(document.getElementById('assetSeksi').value);
+            const qty = parseInt(document.getElementById('assetQty').value);
+            const price = parseFloat(document.getElementById('assetPrice').value);
+            const condition = document.getElementById('assetCondition').value;
+
+            if(!name || isNaN(qty) || isNaN(price)) {
+                showNotification('Mohon lengkapi data barang aset dengan benar', 'error');
+                return;
+            }
+
+            appState.assets.push({
+                id: appState.assets.length + 1,
+                name, seksiId, qty, price, condition, returned: false
+            });
+
+            closeModalNewAsset();
+            renderAssets();
+            showNotification(`Barang aset permanen ${name} berhasil dicatat!`);
+        }
+
+        function previewDriveReceipt(filename) {
+            showNotification(`Membuka berkas kuitansi "${filename}" langsung dari Google Drive Utama...`);
+        }
+
+        function downloadDriveFile(filename) {
+            showNotification(`Mengunduh "${filename}" dari Cloud Google Drive organisasi...`);
+        }
+
+        // Excel Generator using SheetJS
+        function generateExcelLPJ() {
+            const wb = XLSX.utils.book_new();
+
+            // Sheet 1: BKU
+            const bkuData = appState.transactions.map((t, idx) => {
+                const sObj = appState.seksi.find(s => s.id === t.seksiId);
+                return {
+                    "No": idx + 1,
+                    "No. Nota": t.noNota,
+                    "Tanggal": t.date,
+                    "Seksi": sObj ? sObj.name : "Kas Pusat",
+                    "Uraian": t.desc,
+                    "Masuk (Debet)": t.type === 'masuk' ? t.amount : 0,
+                    "Keluar (Kredit)": t.type === 'keluar' ? t.amount : 0,
+                    "File Kuitansi Drive": t.file
+                };
+            });
+            const wsBKU = XLSX.utils.json_to_sheet(bkuData);
+            XLSX.utils.book_append_sheet(wb, wsBKU, "Buku Kas Umum");
+
+            // Sheet 2: Seksi Recap
+            const seksiData = appState.seksi.map(s => {
+                const realisasi = appState.transactions.filter(t => t.seksiId === s.id && t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
+                return {
+                    "Nama Seksi": s.name,
+                    "Penanggung Jawab": s.pj,
+                    "Pagu Anggaran (Rp)": s.pagu,
+                    "Realisasi Belanja (Rp)": realisasi,
+                    "Sisa Saldo (Rp)": s.pagu - realisasi
+                };
+            });
+            const wsSeksi = XLSX.utils.json_to_sheet(seksiData);
+            XLSX.utils.book_append_sheet(wb, wsSeksi, "Rekap Per Seksi");
+
+            // Sheet 3: Assets
+            const assetData = appState.assets.map(a => {
+                const sObj = appState.seksi.find(s => s.id === a.seksiId);
+                return {
+                    "Nama Barang Aset": a.name,
+                    "Seksi": sObj ? sObj.name : "Umum",
+                    "Jumlah Unit": a.qty,
+                    "Harga Satuan": a.price,
+                    "Total Nilai": a.qty * a.price,
+                    "Status": a.returned ? "Dikembalikan" : "Dipinjam",
+                    "Kondisi": a.condition
+                };
+            });
+            const wsAsset = XLSX.utils.json_to_sheet(assetData);
+            XLSX.utils.book_append_sheet(wb, wsAsset, "Inventaris Aset");
+
+            // Export Excel file and simulate Drive Archive sync
+            XLSX.writeFile(wb, `LPJ_Resmi_${appState.currentEvent.replace(/\s+/g, '_')}.xlsx`);
+            showNotification('File Excel LPJ berhasil digenerate dan diarsipkan otomatis ke Google Drive Utama!');
+        }
+
+        // PDF Generator using jsPDF
+        function generatePdfLPJ() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(16);
+            doc.text("LAPORAN PERTANGGUNGJAWABAN (LPJ) KEUANGAN", 14, 20);
+            doc.setFontSize(11);
+            doc.text(`Event: ${appState.currentEvent}`, 14, 28);
+            doc.text(`Ketua Pelaksana: ${appState.chairperson}`, 14, 34);
+            doc.text(`Folder Google Drive: ${appState.driveFolder}`, 14, 40);
+
+            doc.setFontSize(13);
+            doc.text("1. Rekapitulasi Anggaran Per Seksi", 14, 52);
+
+            let seksiRows = appState.seksi.map(s => {
+                let realisasi = appState.transactions.filter(t => t.seksiId === s.id && t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
+                return [s.name, s.pj, formatRupiah(s.pagu), formatRupiah(realisasi), formatRupiah(s.pagu - realisasi)];
+            });
+
+            doc.autoTable({
+                startY: 56,
+                head: [['Nama Seksi', 'Penanggung Jawab', 'Pagu Anggaran', 'Realisasi', 'Sisa']],
+                body: seksiRows,
+                theme: 'grid',
+                headStyles: { fillColor: [79, 70, 229] }
+            });
+
+            let finalY = doc.lastAutoTable.finalY + 15;
+            doc.setFontSize(13);
+            doc.text("2. Inventaris Aset Permanen (Kategori A)", 14, finalY);
+
+            let assetRows = appState.assets.map(a => {
+                const sObj = appState.seksi.find(s => s.id === a.seksiId);
+                return [a.name, sObj ? sObj.name : 'Umum', `${a.qty} Unit`, formatRupiah(a.price * a.qty), a.returned ? 'Dikembalikan' : 'Dipinjam'];
+            });
+
+            doc.autoTable({
+                startY: finalY + 4,
+                head: [['Nama Barang', 'Seksi', 'Jumlah', 'Total Nilai', 'Status']],
+                body: assetRows,
+                theme: 'grid',
+                headStyles: { fillColor: [79, 70, 229] }
+            });
+
+            doc.save(`LPJ_Resmi_${appState.currentEvent.replace(/\s+/g, '_')}.pdf`);
+            showNotification('Dokumen PDF LPJ resmi berhasil dicetak dan disinkronkan ke arsip Google Drive!');
+        }
+
+        // Helper Format Rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        }
+    </script>
+</body>
+</html>
