@@ -895,7 +895,7 @@ function switchRole(roleKey, roleName, email) {
 
         // Fungsi Kirim ke Google Apps Script (Menggunakan mode: 'no-cors' untuk menghindari blokir CORS browser)
         function sendFileToAppsScript(fileObj, customFileName, onComplete) {
-            if (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzLj_A0cslGe_AVFrqmGW2xJunF5KZJs3iRLH0FlGKugzIa79jMCMYHLtIKPGaqkowS/exec") {
+            if (APPS_SCRIPT_URL === "") {
                 showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
                 return;
             }
