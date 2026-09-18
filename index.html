@@ -630,9 +630,13 @@ async function loadTransactions() {
             activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
         }
 
-        function toggleUserMenu() {
-            document.getElementById('userMenuDropdown').classList.toggle('hidden');
-        }
+        // 2. Tambahkan fungsi ini untuk mengatasi error pada tombol menu pengguna
+function toggleUserMenu() {
+    let menu = document.getElementById("userMenu"); // Sesuaikan ID elemen menu Anda jika berbeda
+    if (menu) {
+        menu.classList.toggle("hidden");
+    }
+}
 
         function switchRole(roleKey, roleName, email) {
             document.getElementById('activeUserRoleDisplay').innerText = roleName;
@@ -927,7 +931,10 @@ async function loadTransactions() {
                     mimeType: fileObj.type || "application/octet-stream",
                     fileData: base64Data
                 };
-
+// 1. Ubah window.onload menjadi async function agar 'await' bisa digunakan
+window.onload = async function() {
+    await loadTransactions();
+};
                await fetch(APPS_SCRIPT_URL, {
     method: "POST",
     mode: "no-cors", // <--- Tambahkan ini agar tidak diblokir CORS
