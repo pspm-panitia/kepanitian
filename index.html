@@ -78,6 +78,12 @@
                             <i class="fa-solid fa-user-pen text-indigo-600 w-5"></i>
                             <span>Panitia Pelaksana / Seksi</span>
                         </button>
+                        <div class="border-t border-slate-100 mt-1 pt-1">
+                            <button onclick="triggerLogout()" class="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 flex items-center space-x-2">
+                                <i class="fa-solid fa-right-from-bracket w-5"></i>
+                                <span>Ganti Akun / Logout</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -150,13 +156,13 @@
                     </div>
                     <div>
                         <p class="text-xs font-medium text-slate-400">Folder Drive Terisolasi</p>
-                        <h3 id="statFolderCount" class="text-lg font-bold text-slate-800">1 Aktif</h3>
+                        <h3 id="statFolderCount" class="text-lg font-bold text-slate-800">0 Aktif</h3>
                     </div>
                 </div>
             </div>
 
-            <!-- Event Management & Setup Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <!-- Event Management & Setup Card (Admin Only) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden admin-only">
                 <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
@@ -243,7 +249,7 @@
                                 <th class="pb-3 px-4 text-right">Keluar (Kredit)</th>
                                 <th class="pb-3 px-4 text-right">Saldo (Rp)</th>
                                 <th class="pb-3 px-4 text-center">Kuitansi Drive</th>
-                                <th class="pb-3 px-4 text-center">Aksi</th>
+                                <th class="pb-3 px-4 text-center admin-only">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="bkuTableBody" class="divide-y divide-slate-100 text-sm">
@@ -265,7 +271,7 @@
                         </h2>
                         <p class="text-xs text-slate-500">Analisis penyerapan anggaran masing-masing seksi secara detail.</p>
                     </div>
-                    <button onclick="openModalNewSeksi()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
+                    <button onclick="openModalNewSeksi()" class="admin-only bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
                         <i class="fa-solid fa-folder-plus"></i>
                         <span>Tambah Seksi Baru</span>
                     </button>
@@ -363,6 +369,35 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- MODAL: LOGIN / GANTI PERAN DENGAN PASSWORD -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-100">
+            <div class="p-6 bg-indigo-900 text-white text-center">
+                <div class="w-12 h-12 rounded-full bg-white/10 mx-auto flex items-center justify-center text-xl mb-2">
+                    <i class="fa-solid fa-lock text-emerald-400"></i>
+                </div>
+                <h3 class="font-bold text-lg">Autentikasi Pengguna</h3>
+                <p class="text-xs text-indigo-200 mt-0.5">Pilih peran dan masukkan password akses</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Peran Akses</label>
+                    <select id="loginRole" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600 bg-white">
+                        <option value="admin">Super Admin (Pusat)</option>
+                        <option value="panitia">Panitia Pelaksana / Seksi</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Password Akses</label>
+                    <input type="password" id="loginPassword" placeholder="Masukkan password..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600">
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end space-x-2">
+                <button onclick="processLogin()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white shadow-sm transition">Masuk ke Aplikasi</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL: BUAT KEPANITIAAN / EVENT BARU -->
@@ -536,20 +571,26 @@
         // ==========================================
         // GANTI DENGAN URL WEB APP APPS SCRIPT ANDA
         // ==========================================
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSv9yuhOihANVr9Ej5EE8TC9MevhOMO_SEcO0yuB0AJArbl4coGzQhLWP9M2BO6_1S/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9EDmqHKtELfQqL6yftSDCDddFjp2co-PKgPCMllBTi3Czpnbvr6BwlQe-7F2C5RMx/exec";
 
-     let appState = {
-    currentEvent: "",
-    chairperson: "",
-    driveFolder: "",
-    events: [],
-    seksi: [],
-    transactions: [],
-    assets: [],
-    driveFiles: []
-};
+        // Pengaturan Password Akses Berdasarkan Peran
+        const PASSWORDS = {
+            admin: "admin123",     // Password untuk Super Admin (bisa diganti sesuai keinginan)
+            panitia: "panitia123"  // Password untuk Panitia / Seksi (bisa diganti sesuai keinginan)
+        };
 
-        // Fungsi Navigasi Tab Utama (Memperbaiki error switchTab is not defined)
+        let appState = {
+            currentEvent: "",
+            chairperson: "",
+            driveFolder: "",
+            events: [],
+            seksi: [],
+            transactions: [],
+            assets: [],
+            driveFiles: []
+        };
+
+        // Fungsi Navigasi Tab Utama
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -568,6 +609,9 @@
         }
 
         window.onload = async function() {
+            // Cek Autentikasi / Login
+            checkAuthSession();
+
             renderDashboard();
             renderBKU();
             renderSeksi();
@@ -582,14 +626,69 @@
             await loadTransactions();
         };
 
+        // --- SISTEM AUTENTIKASI & PASSWORD ---
+        function checkAuthSession() {
+            const savedRole = sessionStorage.getItem('userRole');
+            const savedEmail = sessionStorage.getItem('userEmail');
+            const savedName = sessionStorage.getItem('userName');
+
+            if (!savedRole) {
+                document.getElementById('loginModal').classList.remove('hidden');
+            } else {
+                applyRoleAccess(savedRole, savedName || savedEmail);
+            }
+        }
+
+        function processLogin() {
+            const role = document.getElementById('loginRole').value;
+            const pass = document.getElementById('loginPassword').value;
+
+            if (pass === PASSWORDS[role]) {
+                let roleName = role === 'admin' ? 'Super Admin Organisasi' : 'Panitia Pelaksana / Seksi';
+                let emailVal = role === 'admin' ? 'admin@organisasi.or.id' : 'panitia.seksi@organisasi.or.id';
+
+                sessionStorage.setItem('userRole', role);
+                sessionStorage.setItem('userEmail', emailVal);
+                sessionStorage.setItem('userName', roleName);
+
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('loginPassword').value = '';
+                
+                applyRoleAccess(role, roleName);
+                showNotification(`Berhasil masuk sebagai ${roleName}`);
+            } else {
+                showNotification('Password salah! Silakan coba lagi.', 'error');
+            }
+        }
+
+        function applyRoleAccess(roleKey, roleName) {
+            appState.userRole = roleKey;
+            const displayEl = document.getElementById('activeUserRoleDisplay');
+            const emailEl = document.getElementById('currentEmail');
+            if(displayEl) displayEl.innerText = roleKey === 'admin' ? 'Super Admin' : 'Panitia / Seksi';
+            if(emailEl) emailEl.innerText = roleKey === 'admin' ? 'admin@organisasi.or.id' : 'panitia.seksi@organisasi.or.id';
+
+            // Sembunyikan atau tampilkan elemen khusus admin
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                if (roleKey === 'panitia') {
+                    el.style.display = 'none';
+                } else {
+                    el.style.display = '';
+                }
+            });
+        }
+
+        function triggerLogout() {
+            sessionStorage.clear();
+            location.reload();
+        }
+
         async function loadTransactions() {
             try {
-                // Menggunakan mode no-cors atau penanganan aman jika endpoint memblokir
                 let response = await fetch(APPS_SCRIPT_URL + "?action=getData", { mode: 'no-cors' });
-                // Catatan: Karena mode 'no-cors', response.json() tidak bisa dibaca langsung jika server GAS tidak menyertakan Header CORS.
-                // Jika ingin mengambil data real-time, pastikan code.gs di Apps Script merespons dengan ContentService.
             } catch (error) {
-                console.warn("Catatan koneksi Spreadsheet (Mode Offline / CORS terdeteksi, menggunakan data lokal):", error);
+                console.warn("Catatan koneksi Spreadsheet:", error);
             }
         }
 
@@ -631,22 +730,24 @@
             document.getElementById('statFolderCount').innerText = `${appState.events.length} Terisolasi`;
 
             const tbody = document.getElementById('eventTableBody');
-            tbody.innerHTML = '';
-            appState.events.forEach(ev => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4 font-semibold text-slate-800">${ev.name}</td>
-                        <td class="py-3 px-4 text-slate-600">${ev.chair}</td>
-                        <td class="py-3 px-4 font-mono text-xs text-indigo-600">${ev.folder}</td>
-                        <td class="py-3 px-4">
-                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${ev.status.includes('Berjalan') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'}">${ev.status}</span>
-                        </td>
-                        <td class="py-3 px-4 text-right">
-                            <button onclick="switchEvent('${ev.name}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">Pilih Event</button>
-                        </td>
-                    </tr>
-                `;
-            });
+            if(tbody) {
+                tbody.innerHTML = '';
+                appState.events.forEach(ev => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3 px-4 font-semibold text-slate-800">${ev.name}</td>
+                            <td class="py-3 px-4 text-slate-600">${ev.chair}</td>
+                            <td class="py-3 px-4 font-mono text-xs text-indigo-600">${ev.folder}</td>
+                            <td class="py-3 px-4">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${ev.status.includes('Berjalan') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'}">${ev.status}</span>
+                            </td>
+                            <td class="py-3 px-4 text-right">
+                                <button onclick="switchEvent('${ev.name}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">Pilih Event</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
         }
 
         function renderBKU() {
@@ -661,6 +762,8 @@
 
                 const seksiObj = appState.seksi.find(s => s.id === t.seksiId);
                 const seksiName = seksiObj ? seksiObj.name : 'Kas Pusat';
+                
+                let deleteBtnClass = appState.userRole === 'panitia' ? 'admin-only' : '';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
@@ -677,7 +780,7 @@
                                 <span>Drive</span>
                             </span>
                         </td>
-                        <td class="py-3 px-4 text-center">
+                        <td class="py-3 px-4 text-center ${deleteBtnClass}">
                             <button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-rose-600 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </td>
                     </tr>
@@ -768,20 +871,19 @@
             });
         }
 
-        // Tambahkan fungsi switchRole ini di dalam blok <script> utama HTML Anda
-function switchRole(roleKey, roleName, email) {
-    appState.userRole = roleKey;
-    const displayEl = document.getElementById('activeUserRoleDisplay');
-    const emailEl = document.getElementById('currentEmail');
-    if(displayEl) displayEl.innerText = roleName;
-    if(emailEl) emailEl.innerText = email;
-    
-    // Tutup dropdown menu setelah diklik
-    const menu = document.getElementById("userMenuDropdown");
-    if(menu) menu.classList.add("hidden");
-    
-    showNotification(`Berhasil beralih peran ke: ${roleName}`);
-}
+        function switchRole(roleKey, roleName, email) {
+            appState.userRole = roleKey;
+            const displayEl = document.getElementById('activeUserRoleDisplay');
+            const emailEl = document.getElementById('currentEmail');
+            if(displayEl) displayEl.innerText = roleName;
+            if(emailEl) emailEl.innerText = email;
+            
+            const menu = document.getElementById("userMenuDropdown");
+            if(menu) menu.classList.add("hidden");
+            
+            applyRoleAccess(roleKey, roleName);
+            showNotification(`Berhasil beralih peran ke: ${roleName}`);
+        }
         
         function renderDriveExplorer() {
             const grid = document.getElementById('driveExplorerGrid');
@@ -875,7 +977,6 @@ function switchRole(roleKey, roleName, email) {
             }
         }
 
-        // Fungsi Kirim ke Google Apps Script (Menggunakan mode: 'no-cors' untuk menghindari blokir CORS browser)
         function sendFileToAppsScript(fileObj, customFileName, onComplete) {
             if (APPS_SCRIPT_URL === "") {
                 showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
