@@ -924,7 +924,7 @@ function toggleUserMenu() {
         // ==========================================
         // FUNGSI UTAMA UPLOAD FILE KE GOOGLE DRIVE VIA APPS SCRIPT
         // ==========================================
-       function sendFileToAppsScript(fileObj, customFileName, onComplete) {
+    function sendFileToAppsScript(fileObj, customFileName, onComplete) {
             if (APPS_SCRIPT_URL === "") {
                 showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
                 return;
@@ -935,7 +935,6 @@ function toggleUserMenu() {
             const reader = new FileReader();
             reader.readAsDataURL(fileObj);
             
-            // Tambahkan 'async' di sini agar 'await' bisa digunakan di dalam fungsi ini
             reader.onload = async function () {
                 try {
                     const base64Data = reader.result.split(',')[1];
