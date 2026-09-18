@@ -536,7 +536,7 @@
         // ==========================================
         // GANTI DENGAN URL WEB APP APPS SCRIPT ANDA
         // ==========================================
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxoR_I1XW49qWUGc9Tnvun4geofvWuPCCFIJ_5U_xyPXjGZoQJeW0IC3QocUUdhvAXr/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTCmEV4YOihLU8-eGv0COC2M5Vrmqi_VzU7fUrp4XRjDYPOmWKOzhNbIhIHKXPyza_/exec";
 
         let appState = {
             currentEvent: "Dies Natalis Organisasi ke-25",
@@ -579,7 +579,44 @@
             const txDateEl = document.getElementById('txDate');
             if(txDateEl) txDateEl.value = today;
         };
+// Panggil fungsi ini saat halaman pertama kali dibuka
+window.onload = function() {
+    loadTransactions();
+};
 
+// Fungsi untuk mengambil data dari Google Spreadsheet dan menampilkannya ke tabel
+async function loadTransactions() {
+    try {
+        let response = await fetch(APPS_SCRIPT_URL + "?action=getData");
+        let result = await response.json();
+        
+        if (result.status === "success") {
+            let transactions = result.data;
+            let tableBody = document.getElementById("bkuTableBody"); // Sesuaikan ID tbody tabel Anda
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = ""; // Bersihkan tabel sebelum diisi ulang
+            
+            transactions.forEach((tx, index) => {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="px-4 py-2 border">${index + 1}</td>
+                    <td class="px-4 py-2 border">${tx.date}</td>
+                    <td class="px-4 py-2 border">${tx.noNota}</td>
+                    <td class="px-4 py-2 border">${tx.desc}</td>
+                    <td class="px-4 py-2 border text-right">Rp ${Number(tx.masuk).toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-2 border text-right">Rp ${Number(tx.keluar).toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-2 border text-center">
+                        ${tx.fileUrl ? `<a href="${tx.fileUrl}" target="_blank" class="text-blue-600 underline">Lihat Kuitansi</a>` : '-'}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    } catch (error) {
+        console.error("Gagal memuat data BKU:", error);
+    }
+}
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(el => {
@@ -873,7 +910,7 @@
         // FUNGSI UTAMA UPLOAD FILE KE GOOGLE DRIVE VIA APPS SCRIPT
         // ==========================================
         function sendFileToAppsScript(fileObj, customFileName, onComplete) {
-            if (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbxoR_I1XW49qWUGc9Tnvun4geofvWuPCCFIJ_5U_xyPXjGZoQJeW0IC3QocUUdhvAXr/exec") {
+            if (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbxTCmEV4YOihLU8-eGv0COC2M5Vrmqi_VzU7fUrp4XRjDYPOmWKOzhNbIhIHKXPyza_/exec") {
                 showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
                 return;
             }
