@@ -536,7 +536,7 @@
         // ==========================================
         // GANTI DENGAN URL WEB APP APPS SCRIPT ANDA
         // ==========================================
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwz5i4BNtFC9MiNjuQK9I2MmHSNaE0ElkDz7mNgwhdxeY_7-m74f8TaaMcPXl6aDb17/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLj_A0cslGe_AVFrqmGW2xJunF5KZJs3iRLH0FlGKugzIa79jMCMYHLtIKPGaqkowS/exec";
 
         let appState = {
             currentEvent: "Dies Natalis Organisasi ke-25",
@@ -786,6 +786,21 @@
             });
         }
 
+        // Tambahkan fungsi switchRole ini di dalam blok <script> utama HTML Anda
+function switchRole(roleKey, roleName, email) {
+    appState.userRole = roleKey;
+    const displayEl = document.getElementById('activeUserRoleDisplay');
+    const emailEl = document.getElementById('currentEmail');
+    if(displayEl) displayEl.innerText = roleName;
+    if(emailEl) emailEl.innerText = email;
+    
+    // Tutup dropdown menu setelah diklik
+    const menu = document.getElementById("userMenuDropdown");
+    if(menu) menu.classList.add("hidden");
+    
+    showNotification(`Berhasil beralih peran ke: ${roleName}`);
+}
+        
         function renderDriveExplorer() {
             const grid = document.getElementById('driveExplorerGrid');
             grid.innerHTML = '';
@@ -880,7 +895,7 @@
 
         // Fungsi Kirim ke Google Apps Script (Menggunakan mode: 'no-cors' untuk menghindari blokir CORS browser)
         function sendFileToAppsScript(fileObj, customFileName, onComplete) {
-            if (APPS_SCRIPT_URL === "") {
+            if (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzLj_A0cslGe_AVFrqmGW2xJunF5KZJs3iRLH0FlGKugzIa79jMCMYHLtIKPGaqkowS/exec") {
                 showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
                 return;
             }
