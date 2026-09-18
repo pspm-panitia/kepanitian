@@ -567,7 +567,24 @@
             ]
         };
 
-        // Tunggu dokumen termuat sepenuhnya, lalu jalankan inisialisasi utama sekali saja
+        // Fungsi Navigasi Tab Utama (Memperbaiki error switchTab is not defined)
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-white', 'text-slate-600', 'hover:bg-slate-100', 'border', 'border-slate-200');
+            });
+
+            const targetContent = document.getElementById(`content-${tabId}`);
+            const targetBtn = document.getElementById(`tab-${tabId}`);
+
+            if (targetContent) targetContent.classList.remove('hidden');
+            if (targetBtn) {
+                targetBtn.classList.remove('bg-white', 'text-slate-600', 'hover:bg-slate-100', 'border', 'border-slate-200');
+                targetBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+            }
+        }
+
         window.onload = async function() {
             renderDashboard();
             renderBKU();
@@ -580,24 +597,17 @@
             const txDateEl = document.getElementById('txDate');
             if(txDateEl) txDateEl.value = today;
 
-            // Muat data dari Google Spreadsheet jika tersedia
             await loadTransactions();
         };
 
-        // Fungsi untuk mengambil data dari Google Spreadsheet dan menampilkannya ke tabel
         async function loadTransactions() {
             try {
-                let response = await fetch(APPS_SCRIPT_URL + "?action=getData");
-                let result = await response.json();
-                
-                if (result.status === "success") {
-                    let remoteTransactions = result.data;
-                    if(remoteTransactions && remoteTransactions.length > 0) {
-                        // Anda bisa menggabungkan atau memperbarui appState.transactions di sini
-                    }
-                }
+                // Menggunakan mode no-cors atau penanganan aman jika endpoint memblokir
+                let response = await fetch(APPS_SCRIPT_URL + "?action=getData", { mode: 'no-cors' });
+                // Catatan: Karena mode 'no-cors', response.json() tidak bisa dibaca langsung jika server GAS tidak menyertakan Header CORS.
+                // Jika ingin mengambil data real-time, pastikan code.gs di Apps Script merespons dengan ContentService.
             } catch (error) {
-                console.error("Gagal memuat data dari Spreadsheet:", error);
+                console.warn("Catatan koneksi Spreadsheet (Mode Offline / CORS terdeteksi, menggunakan data lokal):", error);
             }
         }
 
@@ -868,9 +878,7 @@
             }
         }
 
-        // ==========================================
-        // FUNGSI UTAMA UPLOAD FILE KE GOOGLE DRIVE VIA APPS SCRIPT
-        // ==========================================
+        // Fungsi Kirim ke Google Apps Script (Menggunakan mode: 'no-cors' untuk menghindari blokir CORS browser)
         function sendFileToAppsScript(fileObj, customFileName, onComplete) {
             if (APPS_SCRIPT_URL === "") {
                 showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
@@ -896,12 +904,12 @@
                         method: "POST",
                         mode: "no-cors",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "text/plain;charset=utf-8"
                         },
                         body: JSON.stringify(payload)
                     });
 
-                    showNotification(`File "${customFileName || fileObj.name}" berhasil tersimpan ke Google Drive!`);
+                    showNotification(`File "${customFileName || fileObj.name}" berhasil dikirim ke Google Drive!`);
                     if (onComplete) onComplete();
                     
                 } catch (error) {
@@ -998,7 +1006,6 @@
             showNotification(`Mengakses file "${filename}" di Google Drive...`);
         }
 
-        // Excel Generator & Otomatis Kirim ke Drive via Apps Script
         function generateExcelLPJ() {
             const wb = XLSX.utils.book_new();
 
@@ -1026,7 +1033,6 @@
             });
         }
 
-        // PDF Generator & Otomatis Kirim ke Drive via Apps Script
         function generatePdfLPJ() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
