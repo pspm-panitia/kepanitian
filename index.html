@@ -597,7 +597,66 @@
 
         window.onload = function() {
             checkAuthSession();
+            function checkAuthSession() {
+            const savedRole = sessionStorage.getItem('userRole');
+            const savedName = sessionStorage.getItem('userName');
+
+            if (!savedRole) {
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal) loginModal.classList.remove('hidden');
+            } else {
+                applyRoleAccess(savedRole, savedName);
+            }
+        }
+
+        function processLogin() {
+            const role = document.getElementById('loginRole').value;
+            const pass = document.getElementById('loginPassword').value;
+
+            // Password verifikasi berdasarkan peran
+            const passwords = { admin: "admin123", panitia: "panitia123" };
+
+            if (pass === passwords[role]) {
+                let roleName = role === 'admin' ? 'Super Admin Organisasi' : 'Panitia Pelaksana / Seksi';
+                let emailVal = role === 'admin' ? 'admin@organisasi.or.id' : 'panitia.seksi@organisasi.or.id';
+
+                sessionStorage.setItem('userRole', role);
+                sessionStorage.setItem('userEmail', emailVal);
+                sessionStorage.setItem('userName', roleName);
+
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('loginPassword').value = '';
+                
+                applyRoleAccess(role, roleName);
+                showNotification(`Berhasil masuk sebagai ${roleName}`);
+            } else {
+                showNotification('Password salah! Silakan coba lagi.', 'error');
+            }
+        }
+
+        function applyRoleAccess(roleKey, roleName) {
+            appState.userRole = roleKey;
+            const displayEl = document.getElementById('activeUserRoleDisplay');
+            const emailEl = document.getElementById('currentEmail');
             
+            if(displayEl) displayEl.innerText = roleKey === 'admin' ? 'Super Admin' : 'Panitia Seksi';
+            if(emailEl) emailEl.innerText = roleKey === 'admin' ? 'admin@organisasi.or.id' : 'panitia.seksi@organisasi.or.id';
+
+            // Sembunyikan elemen eksklusif admin jika login sebagai panitia
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                if (roleKey === 'panitia') {
+                    el.style.display = 'none';
+                } else {
+                    el.style.display = '';
+                }
+            });
+        }
+
+        function triggerLogout() {
+            sessionStorage.clear();
+            location.reload();
+        }
             // Jika belum ada event, arahkan atau set default event pertama jika ada
             if (appState.events.length > 0 && !appState.currentEvent) {
                 appState.currentEvent = appState.events[0].name;
