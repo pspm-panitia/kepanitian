@@ -924,8 +924,8 @@ function toggleUserMenu() {
         // ==========================================
         // FUNGSI UTAMA UPLOAD FILE KE GOOGLE DRIVE VIA APPS SCRIPT
         // ==========================================
-        function sendFileToAppsScript(fileObj, customFileName, onComplete) {
-            if (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwz5i4BNtFC9MiNjuQK9I2MmHSNaE0ElkDz7mNgwhdxeY_7-m74f8TaaMcPXl6aDb17/exec") {
+       function sendFileToAppsScript(fileObj, customFileName, onComplete) {
+            if (APPS_SCRIPT_URL === "") {
                 showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
                 return;
             }
@@ -934,34 +934,34 @@ function toggleUserMenu() {
 
             const reader = new FileReader();
             reader.readAsDataURL(fileObj);
-            reader.onload = function () {
-                const base64Data = reader.result.split(',')[1];
-                const payload = {
-                    action: "uploadFile",
-                    fileName: customFileName || fileObj.name,
-                    mimeType: fileObj.type || "application/octet-stream",
-                    fileData: base64Data
-                };
-// 1. Ubah window.onload menjadi async function agar 'await' bisa digunakan
-window.onload = async function() {
-    await loadTransactions();
-};
-               await fetch(APPS_SCRIPT_URL, {
-    method: "POST",
-    mode: "no-cors", // <--- Tambahkan ini agar tidak diblokir CORS
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-});
-                .then(() => {
+            
+            // Tambahkan 'async' di sini agar 'await' bisa digunakan di dalam fungsi ini
+            reader.onload = async function () {
+                try {
+                    const base64Data = reader.result.split(',')[1];
+                    const payload = {
+                        action: "uploadFile",
+                        fileName: customFileName || fileObj.name,
+                        mimeType: fileObj.type || "application/octet-stream",
+                        fileData: base64Data
+                    };
+
+                    await fetch(APPS_SCRIPT_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
                     showNotification(`File "${customFileName || fileObj.name}" berhasil tersimpan ke Google Drive!`);
-                    if(onComplete) onComplete();
-                })
-                .catch(error => {
+                    if (onComplete) onComplete();
+                    
+                } catch (error) {
                     console.error("Error:", error);
                     showNotification("Gagal menyinkronkan file ke Google Drive.", "error");
-                });
+                }
             };
         }
 
