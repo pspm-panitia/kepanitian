@@ -538,34 +538,16 @@
         // ==========================================
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSv9yuhOihANVr9Ej5EE8TC9MevhOMO_SEcO0yuB0AJArbl4coGzQhLWP9M2BO6_1S/exec";
 
-        let appState = {
-            currentEvent: "Dies Natalis Organisasi ke-25",
-            chairperson: "Ahmad Fauzi, S.Kom.",
-            driveFolder: "/Root/Organisasi_Pusat/Dies_Natalis_25/",
-            events: [
-                { id: 1, name: "Dies Natalis Organisasi ke-25", chair: "Ahmad Fauzi, S.Kom.", folder: "/Root/Organisasi_Pusat/Dies_Natalis_25/", status: "Sedang Berjalan" },
-                { id: 2, name: "Rapat Kerja Nasional (Rakernas) 2026", chair: "Siti Rahma, M.E.", folder: "/Root/Organisasi_Pusat/Rakernas_2026/", status: "Arsip / Selesai" }
-            ],
-            seksi: [
-                { id: 1, name: "Seksi Acara & Persidangan", pj: "Rian Hidayat", pagu: 3500000 },
-                { id: 2, name: "Seksi Konsumsi & Akomodasi", pj: "Nurul Aini", pagu: 4000000 },
-                { id: 3, name: "Seksi Perlengkapan & Dekorasi", pj: "Budi Santoso", pagu: 2500000 }
-            ],
-            transactions: [
-                { id: 1, noNota: "NOTA-001", date: "2026-03-01", seksiId: 1, desc: "Pencairan Dana Kas Awal Organisasi", type: "masuk", amount: 10000000, file: "kuitansi_awal.pdf" },
-                { id: 2, noNota: "NOTA-002", date: "2026-03-03", seksiId: 2, desc: "Belanja Konsumsi Rapat Pleno Panitia", type: "keluar", amount: 750000, file: "kuitansi_konsumsi.jpg" },
-                { id: 3, noNota: "NOTA-003", date: "2026-03-05", seksiId: 3, desc: "Penyewaan Tenda dan Sound System", type: "keluar", amount: 1800000, file: "kuitansi_sound.pdf" }
-            ],
-            assets: [
-                { id: 1, name: "Wireless Microphone Set (2 Unit)", seksiId: 3, qty: 1, price: 1200000, condition: "Sangat Baik", returned: true },
-                { id: 2, name: "Banner Spanduk Utama Kain (6x1m)", seksiId: 1, qty: 2, price: 350000, condition: "Baik", returned: false }
-            ],
-            driveFiles: [
-                { name: "Kuitansi_NOTA-002.jpg", type: "image", size: "1.4 MB", date: "2026-03-03", folder: "Sub-Folder Seksi Konsumsi" },
-                { name: "Kuitansi_NOTA-003.pdf", type: "pdf", size: "850 KB", date: "2026-03-05", folder: "Sub-Folder Seksi Perlengkapan" },
-                { name: "Draft_LPJ_Sementara.xlsx", type: "excel", size: "45 KB", date: "2026-03-06", folder: "Root Arsip LPJ" }
-            ]
-        };
+     let appState = {
+    currentEvent: "",
+    chairperson: "",
+    driveFolder: "",
+    events: [],
+    seksi: [],
+    transactions: [],
+    assets: [],
+    driveFiles: []
+};
 
         // Fungsi Navigasi Tab Utama (Memperbaiki error switchTab is not defined)
         function switchTab(tabId) {
