@@ -560,29 +560,23 @@
             panitia: "panitia123"  
         };
 
-        let appState = {
-            currentEvent: "Dies Natalis Organisasi 2026",
-            chairperson: "Ahmad Fauzi, S.Kom.",
-            driveFolder: "/Root/Organisasi_Pusat/Dies_Natalis/",
+       // Inisialisasi appState dengan pengecekan LocalStorage agar data tidak hilang saat halaman direfresh
+        let savedState = localStorage.getItem('lpj_app_state');
+        let appState = savedState ? JSON.parse(savedState) : {
+            currentEvent: "",
+            chairperson: "",
+            driveFolder: "/Root/Organisasi_Pusat/",
             userRole: "",
-            events: [
-                { id: 1, name: "Dies Natalis Organisasi 2026", chair: "Ahmad Fauzi, S.Kom.", folder: "/Root/Organisasi_Pusat/Dies_Natalis/", status: "Sedang Berjalan" }
-            ],
-            seksi: [
-                { id: 1, name: "Seksi Acara & Persidangan", pj: "M. Rizki", pagu: 3000000 },
-                { id: 2, name: "Seksi Konsumsi", pj: "Ibu Nuraini", pagu: 4500000 },
-                { id: 3, name: "Seksi Perlengkapan & Dekorasi", pj: "Budi Santoso", pagu: 2500000 }
-            ],
-            transactions: [
-                { id: 1, noNota: "NOTA-001", date: "2026-06-01", seksiId: 2, desc: "Belanja bahan konsumsi rapat pleno", type: "keluar", amount: 750000, file: "Kuitansi_NOTA-001.jpg" }
-            ],
-            assets: [
-                { id: 1, name: "Sound System Portable", seksiId: 3, qty: 1, price: 2500000, condition: "Sangat Baik", returned: true }
-            ],
-            driveFiles: [
-                { name: "Kuitansi_NOTA-001.jpg", type: "image", size: "1.1 MB", date: "2026-06-01", folder: "Seksi / Dies Natalis" }
-            ]
+            events: [],
+            seksi: [],
+            transactions: [],
+            assets: [],
+            driveFiles: []
         };
+
+        function saveStateToLocalStorage() {
+            localStorage.setItem('lpj_app_state', JSON.stringify(appState));
+        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -603,6 +597,14 @@
 
         window.onload = function() {
             checkAuthSession();
+            
+            // Jika belum ada event, arahkan atau set default event pertama jika ada
+            if (appState.events.length > 0 && !appState.currentEvent) {
+                appState.currentEvent = appState.events[0].name;
+                appState.chairperson = appState.events[0].chair;
+                appState.driveFolder = appState.events[0].folder;
+            }
+
             renderDashboard();
             renderBKU();
             renderSeksi();
@@ -615,285 +617,6 @@
             if(txDateEl) txDateEl.value = today;
         };
 
-        function checkAuthSession() {
-            const savedRole = sessionStorage.getItem('userRole');
-            const savedName = sessionStorage.getItem('userName');
-
-            if (!savedRole) {
-                document.getElementById('loginModal').classList.remove('hidden');
-            } else {
-                applyRoleAccess(savedRole, savedName);
-            }
-        }
-
-        function processLogin() {
-            const role = document.getElementById('loginRole').value;
-            const pass = document.getElementById('loginPassword').value;
-
-            if (pass === PASSWORDS[role]) {
-                let roleName = role === 'admin' ? 'Super Admin Organisasi' : 'Panitia Pelaksana / Seksi';
-                let emailVal = role === 'admin' ? 'admin@organisasi.or.id' : 'panitia.seksi@organisasi.or.id';
-
-                sessionStorage.setItem('userRole', role);
-                sessionStorage.setItem('userEmail', emailVal);
-                sessionStorage.setItem('userName', roleName);
-
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('loginPassword').value = '';
-                
-                applyRoleAccess(role, roleName);
-                showNotification(`Berhasil masuk sebagai ${roleName}`);
-            } else {
-                showNotification('Password salah! Silakan coba lagi.', 'error');
-            }
-        }
-
-        function applyRoleAccess(roleKey, roleName) {
-            appState.userRole = roleKey;
-            const displayEl = document.getElementById('activeUserRoleDisplay');
-            const emailEl = document.getElementById('currentEmail');
-            
-            if(displayEl) displayEl.innerText = roleKey === 'admin' ? 'Super Admin' : 'Panitia Seksi';
-            if(emailEl) emailEl.innerText = roleKey === 'admin' ? 'admin@organisasi.or.id' : 'panitia.seksi@organisasi.or.id';
-
-            // Kunci elemen eksklusif admin
-            const adminElements = document.querySelectorAll('.admin-only');
-            adminElements.forEach(el => {
-                if (roleKey === 'panitia') {
-                    el.style.display = 'none';
-                } else {
-                    el.style.display = '';
-                }
-            });
-        }
-
-        function triggerLogout() {
-            sessionStorage.clear();
-            location.reload(); // Memuat ulang halaman dan memunculkan modal login kembali
-        }
-
-        function showNotification(message, type = 'success') {
-            const area = document.getElementById('notificationArea');
-            if(!area) return;
-            const bgClass = type === 'error' ? 'bg-rose-500 text-white' : 'bg-emerald-600 text-white';
-            const alertBox = document.createElement('div');
-            alertBox.className = `${bgClass} px-4 py-3 rounded-xl shadow-md text-sm font-medium flex justify-between items-center transition`;
-            alertBox.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="ml-4 text-white/80 hover:text-white"><i class="fa-solid fa-xmark"></i></button>`;
-            area.innerHTML = '';
-            area.appendChild(alertBox);
-            setTimeout(() => { if(alertBox.parentElement) alertBox.remove(); }, 5000);
-        }
-
-        function populateSelectOptions() {
-            const seksiSelects = [document.getElementById('txSeksi'), document.getElementById('assetSeksi')];
-            seksiSelects.forEach(select => {
-                if(!select) return;
-                select.innerHTML = '';
-                appState.seksi.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s.id;
-                    opt.textContent = `${s.name} (PJ: ${s.pj})`;
-                    select.appendChild(opt);
-                });
-            });
-        }
-
-        function renderDashboard() {
-            let totalPagu = appState.seksi.reduce((acc, s) => acc + s.pagu, 0);
-            let totalKeluar = appState.transactions.filter(t => t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
-            let totalMasuk = appState.transactions.filter(t => t.type === 'masuk').reduce((acc, t) => acc + t.amount, 0);
-            let totalSaldo = totalMasuk - totalKeluar;
-
-            document.getElementById('statTotalPagu').innerText = formatRupiah(totalPagu);
-            document.getElementById('statTotalRealisasi').innerText = formatRupiah(totalKeluar);
-            document.getElementById('statTotalSaldo').innerText = formatRupiah(totalSaldo);
-            document.getElementById('statFolderCount').innerText = `${appState.events.length} Terisolasi`;
-
-            const tbody = document.getElementById('eventTableBody');
-            if(tbody) {
-                tbody.innerHTML = '';
-                appState.events.forEach(ev => {
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50 transition">
-                            <td class="py-3 px-4 font-semibold text-slate-800">${ev.name}</td>
-                            <td class="py-3 px-4 text-slate-600">${ev.chair}</td>
-                            <td class="py-3 px-4 font-mono text-xs text-indigo-600">${ev.folder}</td>
-                            <td class="py-3 px-4">
-                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${ev.status.includes('Berjalan') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'}">${ev.status}</span>
-                            </td>
-                            <td class="py-3 px-4 text-right">
-                                <button onclick="switchEvent('${ev.name}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">Pilih Event</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-        }
-
-        function renderBKU() {
-            const tbody = document.getElementById('bkuTableBody');
-            tbody.innerHTML = '';
-            let runningSaldo = 0;
-            const sortedTx = [...appState.transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
-
-            sortedTx.forEach(t => {
-                if(t.type === 'masuk') runningSaldo += t.amount;
-                else runningSaldo -= t.amount;
-
-                const seksiObj = appState.seksi.find(s => s.id === t.seksiId);
-                const seksiName = seksiObj ? seksiObj.name : 'Kas Pusat';
-                
-                let deleteBtnClass = appState.userRole === 'panitia' ? 'admin-only' : '';
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4 font-mono font-bold text-xs text-indigo-600">${t.noNota}</td>
-                        <td class="py-3 px-4 text-slate-600 text-xs">${t.date}</td>
-                        <td class="py-3 px-4 text-slate-700 font-medium">${seksiName}</td>
-                        <td class="py-3 px-4 text-slate-800">${t.desc}</td>
-                        <td class="py-3 px-4 text-right font-semibold text-emerald-600">${t.type === 'masuk' ? formatRupiah(t.amount) : '-'}</td>
-                        <td class="py-3 px-4 text-right font-semibold text-rose-600">${t.type === 'keluar' ? formatRupiah(t.amount) : '-'}</td>
-                        <td class="py-3 px-4 text-right font-bold text-slate-800">${formatRupiah(runningSaldo)}</td>
-                        <td class="py-3 px-4 text-center">
-                            <span onclick="previewDriveReceipt('${t.file}')" class="inline-flex items-center space-x-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-2.5 py-1 rounded-lg text-xs font-semibold cursor-pointer border border-emerald-200 transition">
-                                <i class="fa-solid fa-file-arrow-down"></i>
-                                <span>Drive</span>
-                            </span>
-                        </td>
-                        <td class="py-3 px-4 text-center ${deleteBtnClass}">
-                            <button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-rose-600 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderSeksi() {
-            const tbody = document.getElementById('seksiTableBody');
-            const cardsContainer = document.getElementById('seksiCardsContainer');
-            tbody.innerHTML = '';
-            cardsContainer.innerHTML = '';
-
-            appState.seksi.forEach(s => {
-                let realisasi = appState.transactions
-                    .filter(t => t.seksiId === s.id && t.type === 'keluar')
-                    .reduce((acc, t) => acc + t.amount, 0);
-
-                let selisih = s.pagu - realisasi;
-                let pct = s.pagu > 0 ? Math.round((realisasi / s.pagu) * 100) : 0;
-                let barColor = pct > 100 ? 'bg-rose-500' : (pct > 80 ? 'bg-amber-500' : 'bg-emerald-500');
-
-                cardsContainer.innerHTML += `
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
-                        <div class="flex justify-between items-start">
-                            <h4 class="font-bold text-slate-800 text-sm">${s.name}</h4>
-                            <span class="text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-600 font-medium">PJ: ${s.pj}</span>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-xs text-slate-500">
-                                <span>Realisasi: <strong>${formatRupiah(realisasi)}</strong></span>
-                                <span>Pagu: ${formatRupiah(s.pagu)}</span>
-                            </div>
-                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div class="${barColor} h-full rounded-full transition-all duration-500" style="width: ${Math.min(pct, 100)}%"></div>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center text-xs pt-1 border-t border-slate-100 text-slate-500">
-                            <span>Penyerapan: <strong>${pct}%</strong></span>
-                            <span class="${selisih < 0 ? 'text-rose-600 font-bold' : 'text-emerald-600'}">Sisa: ${formatRupiah(selisih)}</span>
-                        </div>
-                    </div>
-                `;
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4 font-semibold text-slate-800">${s.name}</td>
-                        <td class="py-3 px-4 text-slate-600">${s.pj}</td>
-                        <td class="py-3 px-4 text-right font-medium text-slate-700">${formatRupiah(s.pagu)}</td>
-                        <td class="py-3 px-4 text-right font-semibold text-rose-600">${formatRupiah(realisasi)}</td>
-                        <td class="py-3 px-4 text-right font-bold ${selisih < 0 ? 'text-rose-600' : 'text-emerald-600'}">${formatRupiah(selisih)}</td>
-                        <td class="py-3 px-4 text-center">
-                            <div class="inline-flex items-center space-x-2">
-                                <span class="text-xs font-bold text-slate-700">${pct}%</span>
-                                <div class="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                                    <div class="${barColor} h-full rounded-full" style="width: ${Math.min(pct, 100)}%"></div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderAssets() {
-            const tbody = document.getElementById('assetTableBody');
-            tbody.innerHTML = '';
-            appState.assets.forEach(a => {
-                const seksiObj = appState.seksi.find(s => s.id === a.seksiId);
-                const seksiName = seksiObj ? seksiObj.name : 'Umum';
-                const totalNilai = a.qty * a.price;
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4 font-semibold text-slate-800">${a.name}</td>
-                        <td class="py-3 px-4 text-slate-600 text-xs">${seksiName}</td>
-                        <td class="py-3 px-4 text-center font-medium">${a.qty} Unit</td>
-                        <td class="py-3 px-4 text-right text-slate-700">${formatRupiah(a.price)}</td>
-                        <td class="py-3 px-4 text-right font-bold text-slate-900">${formatRupiah(totalNilai)}</td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${a.returned ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
-                                ${a.returned ? 'Sudah Dikembalikan' : 'Masih Dipinjam'}
-                            </span>
-                        </td>
-                        <td class="py-3 px-4 text-center text-xs font-medium text-slate-600">${a.condition}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderDriveExplorer() {
-            const grid = document.getElementById('driveExplorerGrid');
-            grid.innerHTML = '';
-            appState.driveFiles.forEach(f => {
-                let iconClass = 'fa-file-lines text-slate-500';
-                let badgeCol = 'bg-slate-100 text-slate-600';
-                if(f.type === 'image') { iconClass = 'fa-file-image text-amber-500'; badgeCol = 'bg-amber-50 text-amber-700'; }
-                if(f.type === 'pdf') { iconClass = 'fa-file-pdf text-rose-500'; badgeCol = 'bg-rose-50 text-rose-700'; }
-                if(f.type === 'excel') { iconClass = 'fa-file-excel text-emerald-600'; badgeCol = 'bg-emerald-50 text-emerald-700'; }
-
-                grid.innerHTML += `
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md transition">
-                        <div>
-                            <div class="flex justify-between items-start mb-3">
-                                <div class="w-10 h-10 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-lg">
-                                    <i class="fa-solid ${iconClass}"></i>
-                                </div>
-                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${badgeCol}">${f.size}</span>
-                            </div>
-                            <h4 class="font-bold text-slate-800 text-sm truncate" title="${f.name}">${f.name}</h4>
-                            <p class="text-[11px] text-slate-400 mt-0.5 truncate"><i class="fa-solid fa-folder text-amber-400"></i> ${f.folder}</p>
-                        </div>
-                        <div class="pt-3 mt-3 border-t border-slate-200 flex justify-between items-center text-xs">
-                            <span class="text-slate-400">${f.date}</span>
-                            <button onclick="downloadDriveFile('${f.name}')" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1">
-                                <i class="fa-solid fa-download"></i>
-                                <span>Buka</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function openModalNewEvent() { document.getElementById('modalNewEvent').classList.remove('hidden'); }
-        function closeModalNewEvent() { document.getElementById('modalNewEvent').classList.add('hidden'); }
-        function openModalNewTransaction() { document.getElementById('modalNewTransaction').classList.remove('hidden'); }
-        function closeModalNewTransaction() { document.getElementById('modalNewTransaction').classList.add('hidden'); }
-        function openModalNewSeksi() { document.getElementById('modalNewSeksi').classList.remove('hidden'); }
-        function closeModalNewSeksi() { document.getElementById('modalNewSeksi').classList.add('hidden'); }
-        function openModalNewAsset() { document.getElementById('modalNewAsset').classList.remove('hidden'); }
-        function closeModalNewAsset() { document.getElementById('modalNewAsset').classList.add('hidden'); }
-
         function saveNewEvent() {
             const name = document.getElementById('inputEventName').value;
             const chair = document.getElementById('inputEventChair').value;
@@ -904,9 +627,13 @@
 
             appState.events.push({ id: appState.events.length + 1, name, chair, folder: newFolder, status: 'Sedang Berjalan' });
             appState.currentEvent = name;
+            appState.chairperson = chair;
             appState.driveFolder = newFolder;
-            document.getElementById('driveFolderName').innerText = `Folder: ${name}`;
+            
+            const folderBadge = document.getElementById('driveFolderName');
+            if(folderBadge) folderBadge.innerText = `Folder: ${name}`;
 
+            saveStateToLocalStorage();
             closeModalNewEvent();
             renderDashboard();
             showNotification(`Sukses! Akun & Folder Google Drive terisolasi (${newFolder}) dibuat.`);
@@ -916,58 +643,12 @@
             const ev = appState.events.find(e => e.name === eventName);
             if(ev) {
                 appState.currentEvent = ev.name;
+                appState.chairperson = ev.chair;
                 appState.driveFolder = ev.folder;
+                saveStateToLocalStorage();
                 showNotification(`Berhasil beralih ke event: ${ev.name}`);
+                renderDashboard();
             }
-        }
-
-        function toggleTxType() {
-            const type = document.getElementById('txType').value;
-            const wrapper = document.getElementById('txSeksiWrapper');
-            if(type === 'masuk') wrapper.classList.add('hidden');
-            else wrapper.classList.remove('hidden');
-        }
-
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if(file) {
-                document.getElementById('fileNameDisplay').innerText = `File dipilih: ${file.name}`;
-            }
-        }
-
-      function sendFileToAppsScript(fileObj, customFileName, onSuccess) {
-            if (APPS_SCRIPT_URL === "") {
-                if (onSuccess) onSuccess();
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.readAsDataURL(fileObj);
-            
-            reader.onload = async function () {
-                try {
-                    const base64Data = reader.result.split(',')[1];
-                    const payload = {
-                        action: "uploadFile",
-                        fileName: customFileName || fileObj.name,
-                        mimeType: fileObj.type || "application/octet-stream",
-                        fileData: base64Data
-                    };
-
-                    // Kirim ke Google Drive secara latar belakang (background)
-                    fetch(APPS_SCRIPT_URL, {
-                        method: "POST",
-                        mode: "no-cors",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify(payload)
-                    }).catch(err => console.log("Drive sync background note:", err));
-
-                    if (onSuccess) onSuccess();
-                } catch (error) {
-                    console.error("Error:", error);
-                    if (onSuccess) onSuccess(); // Tetap lanjutkan agar aplikasi tidak macet
-                }
-            };
         }
 
         function saveNewTransaction() {
@@ -986,9 +667,10 @@
 
             const fileName = fileInput.files.length > 0 ? `Kuitansi_${noNota}_${fileInput.files[0].name}` : `Kuitansi_${noNota}.jpg`;
             
-            // Eksekusi penyimpanan data lokal terlebih dahulu agar tidak hilang
+            // Masukkan data ke event atau sesi aktif
             appState.transactions.push({ 
                 id: appState.transactions.length + 1, 
+                event: appState.currentEvent, // Mengikat transaksi ke event yang aktif
                 noNota, 
                 date, 
                 seksiId, 
@@ -1003,33 +685,35 @@
                 type: 'image', 
                 size: fileInput.files.length > 0 ? `${(fileInput.files[0].size / (1024*1024)).toFixed(1)} MB` : '1.0 MB', 
                 date: date, 
-                folder: `Seksi / ${appState.currentEvent}` 
+                folder: `Seksi / ${appState.currentEvent || 'Umum'}` 
             });
 
+            saveStateToLocalStorage(); // Simpan permanen ke browser
             closeModalNewTransaction();
             renderBKU();
             renderDashboard();
             renderSeksi();
             renderDriveExplorer();
 
-            // Reset form input file
+            // Reset form input
             document.getElementById('txNoNota').value = '';
             document.getElementById('txDesc').value = '';
             document.getElementById('txAmount').value = '';
             document.getElementById('txFile').value = '';
             document.getElementById('fileNameDisplay').innerText = 'Klik untuk memilih file kuitansi (JPG, PNG, PDF)';
 
-            showNotification(`Transaksi ${noNota} berhasil dicatat dan disimpan!`);
+            showNotification(`Transaksi ${noNota} berhasil dicatat dan disimpan ke event ${appState.currentEvent}!`);
 
-            // Proses kirim file ke Google Drive di latar belakang jika ada file yang diunggah
             if (fileInput.files.length > 0) {
                 sendFileToAppsScript(fileInput.files[0], fileInput.files[0].name, () => {
                     showNotification(`File kuitansi "${fileInput.files[0].name}" berhasil disinkronkan ke Google Drive.`);
                 });
             }
         }
+
         function deleteTransaction(id) {
             appState.transactions = appState.transactions.filter(t => t.id !== id);
+            saveStateToLocalStorage();
             renderBKU();
             renderDashboard();
             renderSeksi();
@@ -1047,6 +731,7 @@
             }
 
             appState.seksi.push({ id: appState.seksi.length + 1, name, pj, pagu });
+            saveStateToLocalStorage();
             closeModalNewSeksi();
             renderSeksi();
             renderDashboard();
@@ -1067,78 +752,10 @@
             }
 
             appState.assets.push({ id: appState.assets.length + 1, name, seksiId, qty, price, condition, returned: false });
+            saveStateToLocalStorage();
             closeModalNewAsset();
             renderAssets();
             showNotification(`Barang aset permanen ${name} berhasil dicatat!`);
-        }
-
-        function previewDriveReceipt(filename) {
-            showNotification(`Membuka berkas "${filename}" dari Google Drive Utama...`);
-        }
-
-        function downloadDriveFile(filename) {
-            showNotification(`Mengakses file "${filename}" di Google Drive...`);
-        }
-
-        function generateExcelLPJ() {
-            const wb = XLSX.utils.book_new();
-            const bkuData = appState.transactions.map((t, idx) => {
-                const sObj = appState.seksi.find(s => s.id === t.seksiId);
-                return {
-                    "No": idx + 1, "No. Nota": t.noNota, "Tanggal": t.date, "Seksi": sObj ? sObj.name : "Kas Pusat",
-                    "Uraian": t.desc, "Masuk (Debet)": t.type === 'masuk' ? t.amount : 0, "Keluar (Kredit)": t.type === 'keluar' ? t.amount : 0, "File Kuitansi": t.file
-                };
-            });
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bkuData), "Buku Kas Umum");
-
-            const seksiData = appState.seksi.map(s => {
-                let realisasi = appState.transactions.filter(t => t.seksiId === s.id && t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
-                return { "Nama Seksi": s.name, "PJ": s.pj, "Pagu (Rp)": s.pagu, "Realisasi (Rp)": realisasi, "Sisa (Rp)": s.pagu - realisasi };
-            });
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(seksiData), "Rekap Per Seksi");
-
-            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-            const blob = new Blob([wbout], { type: 'application/octet-stream' });
-            const fileName = `LPJ_Resmi_${appState.currentEvent.replace(/\s+/g, '_')}.xlsx`;
-
-            sendFileToAppsScript(blob, fileName, () => {
-                showNotification('File Excel LPJ resmi berhasil dibuat dan diarsipkan otomatis ke Google Drive!');
-            });
-        }
-
-        function generatePdfLPJ() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            doc.setFontSize(16);
-            doc.text("LAPORAN PERTANGGUNGJAWABAN (LPJ) KEUANGAN", 14, 20);
-            doc.setFontSize(11);
-            doc.text(`Event: ${appState.currentEvent}`, 14, 28);
-            doc.text(`Ketua Pelaksana: ${appState.chairperson}`, 14, 34);
-
-            let seksiRows = appState.seksi.map(s => {
-                let realisasi = appState.transactions.filter(t => t.seksiId === s.id && t.type === 'keluar').reduce((acc, t) => acc + t.amount, 0);
-                return [s.name, s.pj, formatRupiah(s.pagu), formatRupiah(realisasi), formatRupiah(s.pagu - realisasi)];
-            });
-
-            doc.autoTable({
-                startY: 42,
-                head: [['Nama Seksi', 'PJ', 'Pagu Anggaran', 'Realisasi', 'Sisa']],
-                body: seksiRows,
-                theme: 'grid',
-                headStyles: { fillColor: [79, 70, 229] }
-            });
-
-            const pdfBlob = doc.output('blob');
-            const fileName = `LPJ_Resmi_${appState.currentEvent.replace(/\s+/g, '_')}.pdf`;
-
-            sendFileToAppsScript(pdfBlob, fileName, () => {
-                showNotification('Dokumen PDF LPJ resmi berhasil dicetak dan disinkronkan ke arsip Google Drive!');
-            });
-        }
-
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
         }
     </script>
 </body>
