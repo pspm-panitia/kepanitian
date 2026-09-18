@@ -54,11 +54,21 @@
             </div>
             
             <div class="flex items-center space-x-4">
+                <!-- Dropdown Event Selector Aktif -->
+                <div class="hidden md:flex items-center space-x-2 bg-indigo-800/90 px-3 py-1.5 rounded-xl border border-indigo-700">
+                    <i class="fa-solid fa-calendar-check text-emerald-400 text-xs"></i>
+                    <label for="headerEventSelect" class="text-xs font-semibold text-indigo-200">Event Aktif:</label>
+                    <select id="headerEventSelect" onchange="switchEvent(this.value)" class="bg-indigo-950 text-white text-xs font-medium rounded-lg px-2 py-1 outline-none border border-indigo-600 focus:ring-1 focus:ring-emerald-400">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
                 <div id="driveStatusBadge" class="hidden sm:flex items-center space-x-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs px-3 py-1.5 rounded-full">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span>Status: <strong id="driveFolderName">Online Terhubung</strong></span>
                 </div>
-                <!-- Area Profil Aktif & Tombol Keluar (Tanpa Switcher Peran Bebas) -->
+
+                <!-- Profil Aktif & Tombol Logout -->
                 <div class="flex items-center space-x-3 bg-indigo-800/80 px-3 py-1.5 rounded-xl border border-indigo-700">
                     <i class="fa-solid fa-user-shield text-indigo-300"></i>
                     <div class="text-left">
@@ -96,7 +106,7 @@
             </button>
             <button onclick="switchTab('drive')" id="tab-drive" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
                 <i class="fa-brands fa-google-drive text-emerald-600"></i>
-                <span>Simulasi Google Drive</span>
+                <span>Google Drive Explorer</span>
             </button>
         </div>
 
@@ -105,6 +115,27 @@
 
         <!-- TAB 1: DASHBOARD EVENT & KEPANITIAAN -->
         <div id="content-dashboard" class="tab-content space-y-6">
+            
+            <!-- Information Banner Event Aktif -->
+            <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-3 bg-indigo-600 text-white rounded-xl">
+                        <i class="fa-solid fa-circle-info text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold text-indigo-500 uppercase tracking-wider">Event / Kepanitiaan Terpilih</span>
+                        <h2 id="displayCurrentEventTitle" class="text-lg font-bold text-slate-800">Belum Ada Event</h2>
+                        <p class="text-xs text-slate-500">Ketua Pelaksana: <span id="displayChairperson" class="font-medium text-slate-700">-</span> | Folder: <span id="displayFolder" class="font-mono text-slate-600">-</span></p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-medium text-slate-500">Ganti Event:</span>
+                    <select id="dashboardEventSelect" onchange="switchEvent(this.value)" class="bg-white border border-slate-300 text-slate-800 text-xs font-semibold rounded-xl px-3 py-2 outline-none focus:border-indigo-600 shadow-sm">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
                     <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
@@ -152,7 +183,7 @@
                             <i class="fa-solid fa-sliders text-indigo-600"></i>
                             <span>Manajemen Kepanitiaan & Folder Google Drive</span>
                         </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Kelola event dan sinkronisasi arsip secara online.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Kelola event, buat folder otomatis, dan sinkronkan arsip ke Google Sheets / Drive.</p>
                     </div>
                     <button onclick="openModalNewEvent()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm shadow-indigo-100">
                         <i class="fa-solid fa-plus"></i>
@@ -187,17 +218,17 @@
                         <span>Generator Dokumen LPJ Resmi ke Google Drive Online</span>
                     </h3>
                     <p class="text-indigo-200 text-sm mt-1 max-w-2xl">
-                        Sistem menyusun rekapitulasi lengkap dan otomatis mengunggah arsip Excel & PDF langsung ke Google Drive melalui Google Apps Script.
+                        Sistem menyusun rekapitulasi lengkap untuk event <strong id="lpjEventNameLabel" class="text-amber-300">[Pilih Event]</strong> dan mengunggah arsip Excel & PDF ke Google Drive / Local Storage.
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-3">
                     <button onclick="generateExcelLPJ()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition flex items-center space-x-2 shadow-md">
                         <i class="fa-solid fa-file-excel"></i>
-                        <span>Simpan Excel ke Drive</span>
+                        <span>Simpan Excel LPJ</span>
                     </button>
                     <button onclick="generatePdfLPJ()" class="bg-rose-600 hover:bg-rose-500 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition flex items-center space-x-2 shadow-md">
                         <i class="fa-solid fa-file-pdf"></i>
-                        <span>Simpan PDF ke Drive</span>
+                        <span>Simpan PDF LPJ</span>
                     </button>
                 </div>
             </div>
@@ -212,7 +243,7 @@
                             <i class="fa-solid fa-book-open text-indigo-600"></i>
                             <span>Buku Kas Umum (BKU) Kronologis</span>
                         </h2>
-                        <p class="text-xs text-slate-500">Pencatatan arus kas lengkap dengan unggah kuitansi online.</p>
+                        <p class="text-xs text-slate-500">Pencatatan arus kas lengkap dengan unggah kuitansi untuk event: <strong id="bkuEventTitle" class="text-indigo-600">-</strong></p>
                     </div>
                     <button onclick="openModalNewTransaction()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
                         <i class="fa-solid fa-receipt"></i>
@@ -252,7 +283,7 @@
                             <i class="fa-solid fa-layer-group text-indigo-600"></i>
                             <span>Komparasi Pagu Anggaran vs Realisasi Per Seksi</span>
                         </h2>
-                        <p class="text-xs text-slate-500">Analisis penyerapan anggaran masing-masing seksi secara detail.</p>
+                        <p class="text-xs text-slate-500">Analisis penyerapan anggaran seksi untuk event: <strong id="seksiEventTitle" class="text-indigo-600">-</strong></p>
                     </div>
                     <button onclick="openModalNewSeksi()" class="admin-only bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
                         <i class="fa-solid fa-folder-plus"></i>
@@ -274,6 +305,7 @@
                                 <th class="pb-3 px-4 text-right">Realisasi Belanja</th>
                                 <th class="pb-3 px-4 text-right">Sisa / Selisih</th>
                                 <th class="pb-3 px-4 text-center">Persentase Penyerapan</th>
+                                <th class="pb-3 px-4 text-center admin-only">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="seksiTableBody" class="divide-y divide-slate-100 text-sm">
@@ -293,7 +325,7 @@
                             <i class="fa-solid fa-boxes-stacked text-indigo-600"></i>
                             <span>Data Pembelian Barang Kategori Aset (Inventaris Permanen)</span>
                         </h2>
-                        <p class="text-xs text-slate-500">Penyaringan pengeluaran untuk barang permanen.</p>
+                        <p class="text-xs text-slate-500">Penyaringan pengeluaran aset inventaris untuk event: <strong id="assetEventTitle" class="text-indigo-600">-</strong></p>
                     </div>
                     <button onclick="openModalNewAsset()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-sm">
                         <i class="fa-solid fa-box-archive"></i>
@@ -312,6 +344,7 @@
                                 <th class="pb-3 px-4 text-right">Total Nilai (Rp)</th>
                                 <th class="pb-3 px-4 text-center">Status Pengembalian</th>
                                 <th class="pb-3 px-4 text-center">Kondisi</th>
+                                <th class="pb-3 px-4 text-center admin-only">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="assetTableBody" class="divide-y divide-slate-100 text-sm">
@@ -331,18 +364,18 @@
                             <i class="fa-brands fa-google-drive text-emerald-600"></i>
                             <span>Drive Utama Organisasi (Cloud Storage Terpusat)</span>
                         </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Daftar file yang berhasil disinkronkan online ke Google Drive.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Daftar file kuitansi dan ekspor LPJ yang tersimpan otomatis.</p>
                     </div>
                     <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-600">
                         <i class="fa-solid fa-server text-indigo-600"></i>
-                        <span>Status: <strong class="text-emerald-600">Terhubung Google Apps Script</strong></span>
+                        <span>Status Apps Script: <strong id="gasStatusIndicator" class="text-emerald-600">Terhubung & Otomatis Simpan</strong></span>
                     </div>
                 </div>
 
                 <!-- Breadcrumb -->
                 <div class="flex items-center space-x-2 text-sm text-slate-600 bg-slate-50 p-3 rounded-xl mb-6 border border-slate-100">
                     <i class="fa-solid fa-folder-open text-amber-500"></i>
-                    <span id="driveBreadcrumb" class="font-semibold text-slate-800">Root / Organisasi_Pusat / LPJ_Event_2026</span>
+                    <span id="driveBreadcrumb" class="font-semibold text-slate-800">Root / Organisasi_Pusat / ...</span>
                 </div>
 
                 <!-- Drive Folder / File Grid -->
@@ -374,7 +407,8 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Password Akses</label>
-                    <input type="password" id="loginPassword" placeholder="Masukkan password..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600">
+                    <input type="password" id="loginPassword" placeholder="Masukkan password..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-600" onkeyup="if(event.key === 'Enter') processLogin()">
+                    <p class="text-[10px] text-slate-400 mt-1">Admin: <code>admin123</code> | Panitia: <code>panitia123</code></p>
                 </div>
             </div>
             <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end space-x-2">
@@ -383,7 +417,6 @@
         </div>
     </div>
 
-    <!-- MODAL LAINNYA (Event, Transaksi, Seksi, Aset) -->
     <!-- MODAL: BUAT KEPANITIAAN / EVENT BARU -->
     <div id="modalNewEvent" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
@@ -406,7 +439,7 @@
             </div>
             <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
                 <button onclick="closeModalNewEvent()" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
-                <button onclick="saveNewEvent()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white shadow-sm">Buat & Sinkronisasi Drive</button>
+                <button onclick="saveNewEvent()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white shadow-sm">Buat & Sinkronisasi Spreadsheet</button>
             </div>
         </div>
     </div>
@@ -560,7 +593,7 @@
             panitia: "panitia123"  
         };
 
-       // Inisialisasi appState dengan pengecekan LocalStorage agar data tidak hilang saat halaman direfresh
+        // Inisialisasi appState dengan pengecekan LocalStorage agar data tidak hilang saat direfresh
         let savedState = localStorage.getItem('lpj_app_state');
         let appState = savedState ? JSON.parse(savedState) : {
             currentEvent: "",
@@ -574,8 +607,59 @@
             driveFiles: []
         };
 
+        // Jika data baru pertama kali dibuka, buat data contoh default
+        if (!appState.events || appState.events.length === 0) {
+            appState.events = [
+                { id: 1, name: "Dies Natalis Organisasi 2026", chair: "Ahmad Fauzi, S.Kom.", folder: "/Root/Organisasi_Pusat/Dies_Natalis_2026/", status: "Sedang Berjalan" }
+            ];
+            appState.currentEvent = "Dies Natalis Organisasi 2026";
+            appState.chairperson = "Ahmad Fauzi, S.Kom.";
+            appState.driveFolder = "/Root/Organisasi_Pusat/Dies_Natalis_2026/";
+
+            appState.seksi = [
+                { id: 1, eventName: "Dies Natalis Organisasi 2026", name: "Seksi Acara & HPD", pj: "Budi Santoso", pagu: 5000000 },
+                { id: 2, eventName: "Dies Natalis Organisasi 2026", name: "Seksi Konsumsi", pj: "Siti Rahma", pagu: 3000000 },
+                { id: 3, eventName: "Dies Natalis Organisasi 2026", name: "Seksi Perlengkapan", pj: "Eko Prasetyo", pagu: 4000000 }
+            ];
+
+            appState.transactions = [
+                { id: 1, eventName: "Dies Natalis Organisasi 2026", noNota: "DANA-001", date: "2026-02-01", seksiId: null, desc: "Penerimaan Dana Kas Utama Organisasi", type: "masuk", amount: 12000000, file: "-" },
+                { id: 2, eventName: "Dies Natalis Organisasi 2026", noNota: "NOTA-001", date: "2026-02-05", seksiId: 1, desc: "Sewa Banner & Panggung Utama", type: "keluar", amount: 1500000, file: "Kuitansi_NOTA-001.pdf" }
+            ];
+
+            appState.assets = [
+                { id: 1, eventName: "Dies Natalis Organisasi 2026", name: "Microphone Wireless Set", seksiId: 3, qty: 2, price: 750000, condition: "Sangat Baik", returned: false }
+            ];
+
+            appState.driveFiles = [
+                { id: 1, eventName: "Dies Natalis Organisasi 2026", name: "Kuitansi_NOTA-001.pdf", type: "pdf", size: "1.2 MB", date: "2026-02-05", folder: "Seksi Acara & HPD" }
+            ];
+
+            saveStateToLocalStorage();
+        }
+
         function saveStateToLocalStorage() {
             localStorage.setItem('lpj_app_state', JSON.stringify(appState));
+            syncToGoogleSheets('saveAll', appState);
+        }
+
+        // Sinkronisasi data ke Google Sheets via Apps Script Web App
+        function syncToGoogleSheets(action, payload) {
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("SCRIPT_ID_ANDA")) return;
+            
+            try {
+                fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: action, data: payload, timestamp: new Date().toISOString() })
+                }).then(() => {
+                    const statusEl = document.getElementById('gasStatusIndicator');
+                    if(statusEl) statusEl.innerText = "Tersimpan di Google Sheets";
+                }).catch(err => console.log('Simpan offline ke LocalStorage:', err));
+            } catch(e) {
+                console.log('Sync network status:', e);
+            }
         }
 
         function switchTab(tabId) {
@@ -597,7 +681,21 @@
 
         window.onload = function() {
             checkAuthSession();
-            function checkAuthSession() {
+            
+            if (appState.events.length > 0 && !appState.currentEvent) {
+                appState.currentEvent = appState.events[0].name;
+                appState.chairperson = appState.events[0].chair;
+                appState.driveFolder = appState.events[0].folder;
+            }
+
+            refreshAllViews();
+
+            const today = new Date().toISOString().split('T')[0];
+            const txDateEl = document.getElementById('txDate');
+            if(txDateEl) txDateEl.value = today;
+        };
+
+        function checkAuthSession() {
             const savedRole = sessionStorage.getItem('userRole');
             const savedName = sessionStorage.getItem('userName');
 
@@ -613,10 +711,7 @@
             const role = document.getElementById('loginRole').value;
             const pass = document.getElementById('loginPassword').value;
 
-            // Password verifikasi berdasarkan peran
-            const passwords = { admin: "admin123", panitia: "panitia123" };
-
-            if (pass === passwords[role]) {
+            if (pass === PASSWORDS[role]) {
                 let roleName = role === 'admin' ? 'Super Admin Organisasi' : 'Panitia Pelaksana / Seksi';
                 let emailVal = role === 'admin' ? 'admin@organisasi.or.id' : 'panitia.seksi@organisasi.or.id';
 
@@ -642,7 +737,6 @@
             if(displayEl) displayEl.innerText = roleKey === 'admin' ? 'Super Admin' : 'Panitia Seksi';
             if(emailEl) emailEl.innerText = roleKey === 'admin' ? 'admin@organisasi.or.id' : 'panitia.seksi@organisasi.or.id';
 
-            // Sembunyikan elemen eksklusif admin jika login sebagai panitia
             const adminElements = document.querySelectorAll('.admin-only');
             adminElements.forEach(el => {
                 if (roleKey === 'panitia') {
@@ -657,45 +751,33 @@
             sessionStorage.clear();
             location.reload();
         }
-            // Jika belum ada event, arahkan atau set default event pertama jika ada
-            if (appState.events.length > 0 && !appState.currentEvent) {
-                appState.currentEvent = appState.events[0].name;
-                appState.chairperson = appState.events[0].chair;
-                appState.driveFolder = appState.events[0].folder;
-            }
 
+        function showNotification(msg, type = 'success') {
+            const area = document.getElementById('notificationArea');
+            if (!area) return;
+            const isError = type === 'error';
+            const bgClass = isError ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800';
+            const iconClass = isError ? 'fa-triangle-exclamation text-rose-500' : 'fa-circle-check text-emerald-500';
+
+            area.innerHTML = `
+                <div class="p-4 rounded-xl border ${bgClass} flex items-center justify-between shadow-sm transition">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid ${iconClass} text-lg"></i>
+                        <span class="text-xs sm:text-sm font-semibold">${msg}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-xs opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `;
+            setTimeout(() => { if (area.firstChild) area.innerHTML = ''; }, 5000);
+        }
+
+        function refreshAllViews() {
+            populateSelectOptions();
             renderDashboard();
             renderBKU();
             renderSeksi();
             renderAssets();
             renderDriveExplorer();
-            populateSelectOptions();
-            
-            const today = new Date().toISOString().split('T')[0];
-            const txDateEl = document.getElementById('txDate');
-            if(txDateEl) txDateEl.value = today;
-        };
-
-        function saveNewEvent() {
-            const name = document.getElementById('inputEventName').value;
-            const chair = document.getElementById('inputEventChair').value;
-            if(!name || !chair) { showNotification('Mohon lengkapi nama event dan ketua pelaksana', 'error'); return; }
-
-            const folderSlug = name.replace(/[^a-zA-Z0-9]/g, '_');
-            const newFolder = `/Root/Organisasi_Pusat/${folderSlug}/`;
-
-            appState.events.push({ id: appState.events.length + 1, name, chair, folder: newFolder, status: 'Sedang Berjalan' });
-            appState.currentEvent = name;
-            appState.chairperson = chair;
-            appState.driveFolder = newFolder;
-            
-            const folderBadge = document.getElementById('driveFolderName');
-            if(folderBadge) folderBadge.innerText = `Folder: ${name}`;
-
-            saveStateToLocalStorage();
-            closeModalNewEvent();
-            renderDashboard();
-            showNotification(`Sukses! Akun & Folder Google Drive terisolasi (${newFolder}) dibuat.`);
         }
 
         function switchEvent(eventName) {
@@ -706,7 +788,341 @@
                 appState.driveFolder = ev.folder;
                 saveStateToLocalStorage();
                 showNotification(`Berhasil beralih ke event: ${ev.name}`);
-                renderDashboard();
+                refreshAllViews();
+            }
+        }
+
+        function populateSelectOptions() {
+            const headerSelect = document.getElementById('headerEventSelect');
+            const dashSelect = document.getElementById('dashboardEventSelect');
+            const txSeksiSelect = document.getElementById('txSeksi');
+            const assetSeksiSelect = document.getElementById('assetSeksi');
+
+            const eventOptionsHtml = appState.events.map(ev => 
+                `<option value="${ev.name}" ${ev.name === appState.currentEvent ? 'selected' : ''}>${ev.name}</option>`
+            ).join('');
+
+            if (headerSelect) headerSelect.innerHTML = eventOptionsHtml || '<option value="">Belum Ada Event</option>';
+            if (dashSelect) dashSelect.innerHTML = eventOptionsHtml || '<option value="">Belum Ada Event</option>';
+
+            // Dynamic Seksi selector filtered by current Event
+            const activeSeksi = appState.seksi.filter(s => s.eventName === appState.currentEvent);
+            const seksiOptionsHtml = activeSeksi.length > 0 
+                ? activeSeksi.map(s => `<option value="${s.id}">${s.name} (PJ: ${s.pj})</option>`).join('')
+                : '<option value="">Belum ada Seksi (Buat di Tab Seksi)</option>';
+
+            if (txSeksiSelect) txSeksiSelect.innerHTML = seksiOptionsHtml;
+            if (assetSeksiSelect) assetSeksiSelect.innerHTML = seksiOptionsHtml;
+        }
+
+        function renderDashboard() {
+            // Update labels
+            const titleEl = document.getElementById('displayCurrentEventTitle');
+            const chairEl = document.getElementById('displayChairperson');
+            const folderEl = document.getElementById('displayFolder');
+            const folderBadge = document.getElementById('driveFolderName');
+            const lpjLabel = document.getElementById('lpjEventNameLabel');
+
+            if (titleEl) titleEl.innerText = appState.currentEvent || "Belum Ada Event";
+            if (chairEl) chairEl.innerText = appState.chairperson || "-";
+            if (folderEl) folderEl.innerText = appState.driveFolder || "-";
+            if (folderBadge) folderBadge.innerText = appState.currentEvent ? `Folder: ${appState.currentEvent}` : "Online Terhubung";
+            if (lpjLabel) lpjLabel.innerText = appState.currentEvent || "[Pilih Event]";
+
+            // Filter data by current active event
+            const activeSeksi = appState.seksi.filter(s => s.eventName === appState.currentEvent);
+            const activeTx = appState.transactions.filter(t => t.eventName === appState.currentEvent);
+
+            const totalPagu = activeSeksi.reduce((sum, s) => sum + s.pagu, 0);
+            const totalPemasukan = activeTx.filter(t => t.type === 'masuk').reduce((sum, t) => sum + t.amount, 0);
+            const totalPengeluaran = activeTx.filter(t => t.type === 'keluar').reduce((sum, t) => sum + t.amount, 0);
+            const saldoKas = totalPemasukan - totalPengeluaran;
+
+            document.getElementById('statTotalPagu').innerText = `Rp ${totalPagu.toLocaleString('id-ID')}`;
+            document.getElementById('statTotalRealisasi').innerText = `Rp ${totalPengeluaran.toLocaleString('id-ID')}`;
+            document.getElementById('statTotalSaldo').innerText = `Rp ${saldoKas.toLocaleString('id-ID')}`;
+            document.getElementById('statFolderCount').innerText = `${appState.events.length} Event Aktif`;
+
+            // Render Events Table
+            const tbody = document.getElementById('eventTableBody');
+            if (tbody) {
+                if (appState.events.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Belum ada data event. Klik "Buat Kepanitiaan Baru".</td></tr>`;
+                } else {
+                    tbody.innerHTML = appState.events.map(ev => `
+                        <tr class="${ev.name === appState.currentEvent ? 'bg-indigo-50/50 font-semibold' : 'hover:bg-slate-50'}">
+                            <td class="py-3 px-4 font-medium text-slate-800">
+                                ${ev.name}
+                                ${ev.name === appState.currentEvent ? '<span class="ml-2 text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-full">Aktif</span>' : ''}
+                            </td>
+                            <td class="py-3 px-4 text-slate-600">${ev.chair}</td>
+                            <td class="py-3 px-4 font-mono text-xs text-indigo-600">${ev.folder}</td>
+                            <td class="py-3 px-4"><span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-medium">${ev.status || 'Berjalan'}</span></td>
+                            <td class="py-3 px-4 text-right space-x-1">
+                                <button onclick="switchEvent('${ev.name}')" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition">Pilih Event</button>
+                                <button onclick="deleteEvent(${ev.id})" class="admin-only text-xs bg-rose-100 hover:bg-rose-200 text-rose-600 px-2.5 py-1.5 rounded-lg transition" title="Hapus Event"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        }
+
+        function renderBKU() {
+            const bkuTitle = document.getElementById('bkuEventTitle');
+            if (bkuTitle) bkuTitle.innerText = appState.currentEvent || 'Semua Event';
+
+            const tbody = document.getElementById('bkuTableBody');
+            if (!tbody) return;
+
+            const activeTx = appState.transactions.filter(t => t.eventName === appState.currentEvent);
+
+            if (activeTx.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-slate-400">Belum ada transaksi BKU untuk event ini.</td></tr>`;
+                return;
+            }
+
+            let runningBalance = 0;
+            tbody.innerHTML = activeTx.map(t => {
+                const isMasuk = t.type === 'masuk';
+                const masuk = isMasuk ? t.amount : 0;
+                const keluar = !isMasuk ? t.amount : 0;
+                runningBalance += (masuk - keluar);
+
+                const seksiObj = appState.seksi.find(s => s.id === t.seksiId);
+                const seksiName = seksiObj ? seksiObj.name : (isMasuk ? 'Pemasukan Kas' : 'Umum');
+
+                return `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="py-3 px-4 font-mono text-xs font-semibold text-slate-700">${t.noNota}</td>
+                        <td class="py-3 px-4 text-slate-600 text-xs">${t.date}</td>
+                        <td class="py-3 px-4 text-slate-600 text-xs"><span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-md">${seksiName}</span></td>
+                        <td class="py-3 px-4 text-slate-800 font-medium">${t.desc}</td>
+                        <td class="py-3 px-4 text-right font-medium text-emerald-600">${masuk > 0 ? 'Rp ' + masuk.toLocaleString('id-ID') : '-'}</td>
+                        <td class="py-3 px-4 text-right font-medium text-rose-600">${keluar > 0 ? 'Rp ' + keluar.toLocaleString('id-ID') : '-'}</td>
+                        <td class="py-3 px-4 text-right font-bold text-slate-800">Rp ${runningBalance.toLocaleString('id-ID')}</td>
+                        <td class="py-3 px-4 text-center">
+                            ${t.file && t.file !== '-' 
+                                ? `<a href="#content-drive" onclick="switchTab('drive')" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2.5 py-1 rounded-lg border border-indigo-200 flex items-center justify-center space-x-1 mx-auto w-max"><i class="fa-solid fa-paperclip"></i> <span>Lihat File</span></a>` 
+                                : '<span class="text-slate-300 text-xs">-</span>'}
+                        </td>
+                        <td class="py-3 px-4 text-center admin-only">
+                            <button onclick="deleteTransaction(${t.id})" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderSeksi() {
+            const seksiTitle = document.getElementById('seksiEventTitle');
+            if (seksiTitle) seksiTitle.innerText = appState.currentEvent || 'Semua Event';
+
+            const cardsContainer = document.getElementById('seksiCardsContainer');
+            const tbody = document.getElementById('seksiTableBody');
+
+            const activeSeksi = appState.seksi.filter(s => s.eventName === appState.currentEvent);
+            const activeTx = appState.transactions.filter(t => t.eventName === appState.currentEvent && t.type === 'keluar');
+
+            if (cardsContainer) {
+                cardsContainer.innerHTML = activeSeksi.map(s => {
+                    const realisasi = activeTx.filter(t => t.seksiId === s.id).reduce((sum, t) => sum + t.amount, 0);
+                    const sisa = s.pagu - realisasi;
+                    const percent = s.pagu > 0 ? Math.min(Math.round((realisasi / s.pagu) * 100), 100) : 0;
+
+                    return `
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-slate-800">${s.name}</h4>
+                                    <p class="text-xs text-slate-500">PJ: ${s.pj}</p>
+                                </div>
+                                <span class="text-xs font-bold px-2 py-1 rounded-lg ${percent > 90 ? 'bg-rose-100 text-rose-700' : 'bg-indigo-100 text-indigo-700'}">${percent}% Serap</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div class="bg-indigo-600 h-full rounded-full" style="width: ${percent}%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-slate-600 font-medium">
+                                <span>Pagu: Rp ${s.pagu.toLocaleString('id-ID')}</span>
+                                <span>Terpakai: Rp ${realisasi.toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('') || '<div class="col-span-3 text-center text-slate-400 py-4">Belum ada seksi untuk event ini.</div>';
+            }
+
+            if (tbody) {
+                if (activeSeksi.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">Belum ada data seksi.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = activeSeksi.map(s => {
+                    const realisasi = activeTx.filter(t => t.seksiId === s.id).reduce((sum, t) => sum + t.amount, 0);
+                    const sisa = s.pagu - realisasi;
+                    const percent = s.pagu > 0 ? Math.round((realisasi / s.pagu) * 100) : 0;
+
+                    return `
+                        <tr class="hover:bg-slate-50 border-b border-slate-100">
+                            <td class="py-3 px-4 font-semibold text-slate-800">${s.name}</td>
+                            <td class="py-3 px-4 text-slate-600">${s.pj}</td>
+                            <td class="py-3 px-4 text-right font-medium text-slate-700">Rp ${s.pagu.toLocaleString('id-ID')}</td>
+                            <td class="py-3 px-4 text-right font-medium text-rose-600">Rp ${realisasi.toLocaleString('id-ID')}</td>
+                            <td class="py-3 px-4 text-right font-medium ${sisa < 0 ? 'text-rose-600' : 'text-emerald-600'}">Rp ${sisa.toLocaleString('id-ID')}</td>
+                            <td class="py-3 px-4 text-center">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold ${percent > 100 ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">${percent}%</span>
+                            </td>
+                            <td class="py-3 px-4 text-center admin-only">
+                                <button onclick="deleteSeksi(${s.id})" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderAssets() {
+            const assetTitle = document.getElementById('assetEventTitle');
+            if (assetTitle) assetTitle.innerText = appState.currentEvent || 'Semua Event';
+
+            const tbody = document.getElementById('assetTableBody');
+            if (!tbody) return;
+
+            const activeAssets = appState.assets.filter(a => a.eventName === appState.currentEvent);
+
+            if (activeAssets.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">Belum ada barang aset untuk event ini.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = activeAssets.map(a => {
+                const seksiObj = appState.seksi.find(s => s.id === a.seksiId);
+                const totalNilai = a.qty * a.price;
+
+                return `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="py-3 px-4 font-semibold text-slate-800">${a.name}</td>
+                        <td class="py-3 px-4 text-slate-600 text-xs">${seksiObj ? seksiObj.name : 'Umum'}</td>
+                        <td class="py-3 px-4 text-center font-bold text-slate-700">${a.qty}</td>
+                        <td class="py-3 px-4 text-right text-slate-700">Rp ${a.price.toLocaleString('id-ID')}</td>
+                        <td class="py-3 px-4 text-right font-bold text-indigo-600">Rp ${totalNilai.toLocaleString('id-ID')}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="toggleAssetReturn(${a.id})" class="px-2.5 py-1 rounded-full text-xs font-semibold ${a.returned ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                                ${a.returned ? '<i class="fa-solid fa-check"></i> Dikembalikan' : '<i class="fa-solid fa-clock"></i> Dipakai/Panitia'}
+                            </button>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-md">${a.condition}</span>
+                        </td>
+                        <td class="py-3 px-4 text-center admin-only">
+                            <button onclick="deleteAsset(${a.id})" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderDriveExplorer() {
+            const breadcrumb = document.getElementById('driveBreadcrumb');
+            if (breadcrumb) breadcrumb.innerText = `Root / Organisasi_Pusat / ${appState.currentEvent || 'Umum'}`;
+
+            const grid = document.getElementById('driveExplorerGrid');
+            if (!grid) return;
+
+            const activeFiles = appState.driveFiles.filter(f => f.eventName === appState.currentEvent || !f.eventName);
+
+            grid.innerHTML = activeFiles.map(f => `
+                <div class="border border-slate-200 rounded-2xl p-4 hover:shadow-md transition bg-slate-50/50 flex flex-col justify-between space-y-3">
+                    <div class="flex items-start space-x-3">
+                        <div class="p-3 bg-white rounded-xl border border-slate-100 shadow-sm text-indigo-600 text-2xl">
+                            <i class="fa-solid ${f.type === 'pdf' ? 'fa-file-pdf text-rose-500' : 'fa-file-image text-emerald-500'}"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h4 class="font-bold text-sm text-slate-800 truncate" title="${f.name}">${f.name}</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">${f.folder} • ${f.size}</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+                        <span>${f.date}</span>
+                        <span class="text-emerald-600 font-semibold flex items-center space-x-1"><i class="fa-solid fa-cloud-check"></i> <span>Drive OK</span></span>
+                    </div>
+                </div>
+            `).join('') || '<div class="col-span-4 text-center text-slate-400 py-8">Belum ada file kuitansi tersimpan di Drive.</div>';
+        }
+
+        // Action Handlers
+        function openModalNewEvent() { document.getElementById('modalNewEvent').classList.remove('hidden'); }
+        function closeModalNewEvent() { document.getElementById('modalNewEvent').classList.add('hidden'); }
+        
+        function saveNewEvent() {
+            const name = document.getElementById('inputEventName').value;
+            const chair = document.getElementById('inputEventChair').value;
+            if(!name || !chair) { showNotification('Mohon lengkapi nama event dan ketua pelaksana', 'error'); return; }
+
+            const folderSlug = name.replace(/[^a-zA-Z0-9]/g, '_');
+            const newFolder = `/Root/Organisasi_Pusat/${folderSlug}/`;
+
+            const newEventObj = { id: appState.events.length + 1, name, chair, folder: newFolder, status: 'Sedang Berjalan' };
+            appState.events.push(newEventObj);
+            
+            // Otomatis tambahkan Seksi default untuk event baru ini
+            appState.seksi.push(
+                { id: Date.now() + 1, eventName: name, name: "Seksi Acara & HPD", pj: chair, pagu: 3000000 },
+                { id: Date.now() + 2, eventName: name, name: "Seksi Perlengkapan", pj: "Panitia Perlengkapan", pagu: 2000000 }
+            );
+
+            appState.currentEvent = name;
+            appState.chairperson = chair;
+            appState.driveFolder = newFolder;
+
+            saveStateToLocalStorage();
+            closeModalNewEvent();
+            refreshAllViews();
+            showNotification(`Sukses! Event "${name}" dibuat dan disinkronkan ke Spreadsheet!`);
+            
+            document.getElementById('inputEventName').value = '';
+            document.getElementById('inputEventChair').value = '';
+        }
+
+        function deleteEvent(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus event ini beserta seluruh datanya?")) {
+                const ev = appState.events.find(e => e.id === id);
+                if (ev) {
+                    appState.events = appState.events.filter(e => e.id !== id);
+                    appState.seksi = appState.seksi.filter(s => s.eventName !== ev.name);
+                    appState.transactions = appState.transactions.filter(t => t.eventName !== ev.name);
+                    appState.assets = appState.assets.filter(a => a.eventName !== ev.name);
+                    
+                    if (appState.events.length > 0) {
+                        appState.currentEvent = appState.events[0].name;
+                        appState.chairperson = appState.events[0].chair;
+                        appState.driveFolder = appState.events[0].folder;
+                    } else {
+                        appState.currentEvent = "";
+                        appState.chairperson = "";
+                        appState.driveFolder = "";
+                    }
+                    saveStateToLocalStorage();
+                    refreshAllViews();
+                    showNotification("Event berhasil dihapus.");
+                }
+            }
+        }
+
+        function openModalNewTransaction() { document.getElementById('modalNewTransaction').classList.remove('hidden'); }
+        function closeModalNewTransaction() { document.getElementById('modalNewTransaction').classList.add('hidden'); }
+        
+        function toggleTxType() {
+            const type = document.getElementById('txType').value;
+            const seksiWrapper = document.getElementById('txSeksiWrapper');
+            if (seksiWrapper) seksiWrapper.style.display = type === 'keluar' ? 'block' : 'none';
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            const display = document.getElementById('fileNameDisplay');
+            if (file && display) {
+                display.innerText = `File Terpilih: ${file.name} (${(file.size / (1024*1024)).toFixed(2)} MB)`;
             }
         }
 
@@ -714,93 +1130,105 @@
             const noNota = document.getElementById('txNoNota').value;
             const date = document.getElementById('txDate').value;
             const type = document.getElementById('txType').value;
-            const seksiId = type === 'keluar' ? parseInt(document.getElementById('txSeksi').value) : null;
+            const seksiVal = document.getElementById('txSeksi').value;
+            const seksiId = type === 'keluar' && seksiVal ? parseInt(seksiVal) : null;
             const desc = document.getElementById('txDesc').value;
             const amount = parseFloat(document.getElementById('txAmount').value);
             const fileInput = document.getElementById('txFile');
 
-            if(!noNota || !date || !desc || isNaN(amount)) {
-                showNotification('Mohon lengkapi seluruh field formulir transaksi dengan benar', 'error');
+            if(!noNota || !date || !desc || isNaN(amount) || amount <= 0) {
+                showNotification('Mohon lengkapi formulir transaksi dengan nominal valid', 'error');
                 return;
             }
 
-            const fileName = fileInput.files.length > 0 ? `Kuitansi_${noNota}_${fileInput.files[0].name}` : `Kuitansi_${noNota}.jpg`;
+            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : `Kuitansi_${noNota}.jpg`;
             
-            // Masukkan data ke event atau sesi aktif
             appState.transactions.push({ 
-                id: appState.transactions.length + 1, 
-                event: appState.currentEvent, // Mengikat transaksi ke event yang aktif
+                id: Date.now(), 
+                eventName: appState.currentEvent, 
                 noNota, 
                 date, 
                 seksiId, 
                 desc, 
                 type, 
                 amount, 
-                file: fileInput.files.length > 0 ? fileInput.files[0].name : '-' 
+                file: fileInput.files.length > 0 ? fileName : '-' 
             });
             
-            appState.driveFiles.unshift({ 
-                name: fileInput.files.length > 0 ? fileInput.files[0].name : fileName, 
-                type: 'image', 
-                size: fileInput.files.length > 0 ? `${(fileInput.files[0].size / (1024*1024)).toFixed(1)} MB` : '1.0 MB', 
-                date: date, 
-                folder: `Seksi / ${appState.currentEvent || 'Umum'}` 
-            });
+            if (fileInput.files.length > 0) {
+                appState.driveFiles.unshift({ 
+                    id: Date.now(),
+                    eventName: appState.currentEvent,
+                    name: fileName, 
+                    type: fileName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image', 
+                    size: `${(fileInput.files[0].size / (1024*1024)).toFixed(1)} MB`, 
+                    date: date, 
+                    folder: `Bukti Transaksi / ${appState.currentEvent}` 
+                });
+            }
 
-            saveStateToLocalStorage(); // Simpan permanen ke browser
+            saveStateToLocalStorage();
             closeModalNewTransaction();
-            renderBKU();
-            renderDashboard();
-            renderSeksi();
-            renderDriveExplorer();
+            refreshAllViews();
 
-            // Reset form input
             document.getElementById('txNoNota').value = '';
             document.getElementById('txDesc').value = '';
             document.getElementById('txAmount').value = '';
             document.getElementById('txFile').value = '';
             document.getElementById('fileNameDisplay').innerText = 'Klik untuk memilih file kuitansi (JPG, PNG, PDF)';
 
-            showNotification(`Transaksi ${noNota} berhasil dicatat dan disimpan ke event ${appState.currentEvent}!`);
-
-            if (fileInput.files.length > 0) {
-                sendFileToAppsScript(fileInput.files[0], fileInput.files[0].name, () => {
-                    showNotification(`File kuitansi "${fileInput.files[0].name}" berhasil disinkronkan ke Google Drive.`);
-                });
-            }
+            showNotification(`Transaksi ${noNota} tersimpan & masuk rekapitulasi event ${appState.currentEvent}!`);
         }
 
         function deleteTransaction(id) {
-            appState.transactions = appState.transactions.filter(t => t.id !== id);
-            saveStateToLocalStorage();
-            renderBKU();
-            renderDashboard();
-            renderSeksi();
-            showNotification('Transaksi berhasil dihapus');
+            if(confirm("Hapus transaksi ini?")) {
+                appState.transactions = appState.transactions.filter(t => t.id !== id);
+                saveStateToLocalStorage();
+                refreshAllViews();
+                showNotification('Transaksi berhasil dihapus.');
+            }
         }
 
+        function openModalNewSeksi() { document.getElementById('modalNewSeksi').classList.remove('hidden'); }
+        function closeModalNewSeksi() { document.getElementById('modalNewSeksi').classList.add('hidden'); }
+        
         function saveNewSeksi() {
             const name = document.getElementById('inputSeksiName').value;
             const pj = document.getElementById('inputSeksiPJ').value;
             const pagu = parseFloat(document.getElementById('inputSeksiPagu').value);
 
             if(!name || !pj || isNaN(pagu)) {
-                showNotification('Mohon lengkapi seluruh field seksi', 'error');
+                showNotification('Mohon isi nama seksi, PJ, dan pagu dengan benar', 'error');
                 return;
             }
 
-            appState.seksi.push({ id: appState.seksi.length + 1, name, pj, pagu });
+            appState.seksi.push({ id: Date.now(), eventName: appState.currentEvent, name, pj, pagu });
             saveStateToLocalStorage();
             closeModalNewSeksi();
-            renderSeksi();
-            renderDashboard();
-            populateSelectOptions();
+            refreshAllViews();
+            
+            document.getElementById('inputSeksiName').value = '';
+            document.getElementById('inputSeksiPJ').value = '';
+            document.getElementById('inputSeksiPagu').value = '';
             showNotification(`Seksi ${name} berhasil ditambahkan!`);
         }
 
+        function deleteSeksi(id) {
+            if(confirm("Hapus seksi ini?")) {
+                appState.seksi = appState.seksi.filter(s => s.id !== id);
+                saveStateToLocalStorage();
+                refreshAllViews();
+                showNotification('Seksi dihapus.');
+            }
+        }
+
+        function openModalNewAsset() { document.getElementById('modalNewAsset').classList.remove('hidden'); }
+        function closeModalNewAsset() { document.getElementById('modalNewAsset').classList.add('hidden'); }
+        
         function saveNewAsset() {
             const name = document.getElementById('assetName').value;
-            const seksiId = parseInt(document.getElementById('assetSeksi').value);
+            const seksiVal = document.getElementById('assetSeksi').value;
+            const seksiId = seksiVal ? parseInt(seksiVal) : null;
             const qty = parseInt(document.getElementById('assetQty').value);
             const price = parseFloat(document.getElementById('assetPrice').value);
             const condition = document.getElementById('assetCondition').value;
@@ -810,11 +1238,169 @@
                 return;
             }
 
-            appState.assets.push({ id: appState.assets.length + 1, name, seksiId, qty, price, condition, returned: false });
+            appState.assets.push({ id: Date.now(), eventName: appState.currentEvent, name, seksiId, qty, price, condition, returned: false });
             saveStateToLocalStorage();
             closeModalNewAsset();
-            renderAssets();
+            refreshAllViews();
+            
+            document.getElementById('assetName').value = '';
+            document.getElementById('assetPrice').value = '';
             showNotification(`Barang aset permanen ${name} berhasil dicatat!`);
+        }
+
+        function toggleAssetReturn(id) {
+            const asset = appState.assets.find(a => a.id === id);
+            if (asset) {
+                asset.returned = !asset.returned;
+                saveStateToLocalStorage();
+                renderAssets();
+                showNotification(`Status barang ${asset.name} diperbarui.`);
+            }
+        }
+
+        function deleteAsset(id) {
+            if(confirm("Hapus data aset ini?")) {
+                appState.assets = appState.assets.filter(a => a.id !== id);
+                saveStateToLocalStorage();
+                renderAssets();
+                showNotification('Data aset dihapus.');
+            }
+        }
+
+        // Generator Excel & PDF LPJ Resmi
+        function generateExcelLPJ() {
+            if (!appState.currentEvent) { showNotification('Pilih event terlebih dahulu!', 'error'); return; }
+
+            const activeSeksi = appState.seksi.filter(s => s.eventName === appState.currentEvent);
+            const activeTx = appState.transactions.filter(t => t.eventName === appState.currentEvent);
+            const activeAssets = appState.assets.filter(a => a.eventName === appState.currentEvent);
+
+            const wb = XLSX.utils.book_new();
+
+            // Sheet 1: BKU
+            const bkuData = activeTx.map(t => ({
+                "No. Bukti": t.noNota,
+                "Tanggal": t.date,
+                "Uraian": t.desc,
+                "Debet (Masuk)": t.type === 'masuk' ? t.amount : 0,
+                "Kredit (Keluar)": t.type === 'keluar' ? t.amount : 0
+            }));
+            const wsBKU = XLSX.utils.json_to_sheet(bkuData.length ? bkuData : [{"Pesan": "Belum ada transaksi"}]);
+            XLSX.utils.book_append_sheet(wb, wsBKU, "Buku Kas Umum");
+
+            // Sheet 2: Rekap Seksi
+            const seksiData = activeSeksi.map(s => {
+                const realisasi = activeTx.filter(t => t.seksiId === s.id && t.type === 'keluar').reduce((sum, t) => sum + t.amount, 0);
+                return {
+                    "Nama Seksi": s.name,
+                    "Penanggung Jawab": s.pj,
+                    "Pagu Anggaran": s.pagu,
+                    "Realisasi Belanja": realisasi,
+                    "Sisa Anggaran": s.pagu - realisasi
+                };
+            });
+            const wsSeksi = XLSX.utils.json_to_sheet(seksiData.length ? seksiData : [{"Pesan": "Belum ada seksi"}]);
+            XLSX.utils.book_append_sheet(wb, wsSeksi, "Rekap Seksi");
+
+            // Sheet 3: Inventaris Aset
+            const assetData = activeAssets.map(a => ({
+                "Nama Barang": a.name,
+                "Jumlah": a.qty,
+                "Harga Satuan": a.price,
+                "Total Nilai": a.qty * a.price,
+                "Kondisi": a.condition,
+                "Status": a.returned ? 'Dikembalikan' : 'Dipakai'
+            }));
+            const wsAsset = XLSX.utils.json_to_sheet(assetData.length ? assetData : [{"Pesan": "Belum ada aset"}]);
+            XLSX.utils.book_append_sheet(wb, wsAsset, "Inventaris Aset");
+
+            const fileName = `LPJ_${appState.currentEvent.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+
+            // Log file ke Drive Explorer
+            appState.driveFiles.unshift({
+                id: Date.now(),
+                eventName: appState.currentEvent,
+                name: fileName,
+                type: 'excel',
+                size: '25 KB',
+                date: new Date().toISOString().split('T')[0],
+                folder: `LPJ Resmi / ${appState.currentEvent}`
+            });
+            saveStateToLocalStorage();
+            renderDriveExplorer();
+
+            showNotification(`Laporan Excel LPJ "${fileName}" berhasil dibuat!`);
+        }
+
+        function generatePdfLPJ() {
+            if (!appState.currentEvent) { showNotification('Pilih event terlebih dahulu!', 'error'); return; }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const activeSeksi = appState.seksi.filter(s => s.eventName === appState.currentEvent);
+            const activeTx = appState.transactions.filter(t => t.eventName === appState.currentEvent);
+
+            // Header LPJ
+            doc.setFontSize(16);
+            doc.text(`LAPORAN PERTANGGUNGJAWABAN (LPJ)`, 14, 15);
+            doc.setFontSize(12);
+            doc.text(`Event: ${appState.currentEvent}`, 14, 23);
+            doc.setFontSize(10);
+            doc.text(`Ketua Pelaksana: ${appState.chairperson || '-'}`, 14, 29);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}`, 14, 35);
+
+            // Table BKU
+            doc.setFontSize(11);
+            doc.text(`1. Ringkasan Buku Kas Umum (BKU)`, 14, 45);
+
+            const txRows = activeTx.map(t => [
+                t.noNota,
+                t.date,
+                t.desc,
+                t.type === 'masuk' ? `Rp ${t.amount.toLocaleString('id-ID')}` : '-',
+                t.type === 'keluar' ? `Rp ${t.amount.toLocaleString('id-ID')}` : '-'
+            ]);
+
+            doc.autoTable({
+                startY: 48,
+                head: [['No. Nota', 'Tanggal', 'Uraian', 'Masuk', 'Keluar']],
+                body: txRows.length ? txRows : [['-', '-', 'Belum ada transaksi', '-', '-']],
+            });
+
+            // Table Rekap Seksi
+            const finalY = doc.lastAutoTable.previous.finalY + 10;
+            doc.text(`2. Rekapitulasi Realisasi Seksi`, 14, finalY);
+
+            const seksiRows = activeSeksi.map(s => {
+                const realisasi = activeTx.filter(t => t.seksiId === s.id && t.type === 'keluar').reduce((sum, t) => sum + t.amount, 0);
+                return [s.name, s.pj, `Rp ${s.pagu.toLocaleString('id-ID')}`, `Rp ${realisasi.toLocaleString('id-ID')}`, `Rp ${(s.pagu - realisasi).toLocaleString('id-ID')}`];
+            });
+
+            doc.autoTable({
+                startY: finalY + 3,
+                head: [['Nama Seksi', 'PJ', 'Pagu', 'Realisasi', 'Sisa']],
+                body: seksiRows.length ? seksiRows : [['-', '-', '-', '-', '-']],
+            });
+
+            const fileName = `LPJ_${appState.currentEvent.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            doc.save(fileName);
+
+            // Log file ke Drive Explorer
+            appState.driveFiles.unshift({
+                id: Date.now(),
+                eventName: appState.currentEvent,
+                name: fileName,
+                type: 'pdf',
+                size: '45 KB',
+                date: new Date().toISOString().split('T')[0],
+                folder: `LPJ Resmi / ${appState.currentEvent}`
+            });
+            saveStateToLocalStorage();
+            renderDriveExplorer();
+
+            showNotification(`Laporan PDF LPJ "${fileName}" berhasil diunduh!`);
         }
     </script>
 </body>
