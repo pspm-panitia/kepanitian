@@ -567,52 +567,8 @@
             ]
         };
 
-        window.onload = function() {
-            renderDashboard();
-            renderBKU();
-            renderSeksi();
-            renderAssets();
-            renderDriveExplorer();
-            populateSelectOptions();
-            
-            const today = new Date().toISOString().split('T')[0];
-            const txDateEl = document.getElementById('txDate');
-            if(txDateEl) txDateEl.value = today;
-        };
-// Panggil fungsi ini saat halaman pertama kali dibuka
-window.onload = function() {
-    loadTransactions();
-};
-
-// Fungsi untuk mengambil data dari Google Spreadsheet dan menampilkannya ke tabel
-async function loadTransactions() {
-    try {
-        let response = await fetch(APPS_SCRIPT_URL + "?action=getData");
-        let result = await response.json();
-        
-        if (result.status === "success") {
-            let transactions = result.data;
-            let tableBody = document.getElementById("bkuTableBody"); // Sesuaikan ID tbody tabel Anda
-            if (!tableBody) return;
-            
-            tableBody.innerHTML = ""; // Bersihkan tabel sebelum diisi ulang
-            
-            transactions.forEach((tx, index) => {
-                let row = document.createElement("tr");
-                row.innerHTML = `
-                    <td class="px-4 py-2 border">${index + 1}</td>
-                    <td class="px-4 py-2 border">${tx.date}</td>
-                    <td class="px-4 py-2 border">${tx.noNota}</td>
-                    <td class="px-4 py-2 border">${tx.desc}</td>
-                    <td class="px-4 py-2 border text-right">Rp ${Number(tx.masuk).toLocaleString('id-ID')}</td>
-                    <td class="px-4 py-2 border text-right">Rp ${Number(tx.keluar).toLocaleString('id-ID')}</td>
-                    <td class="px-4 py-2 border text-center">
-                        ${tx.fileUrl ? `<a href="${tx.fileUrl}" target="_blank" class="text-blue-600 underline">Lihat Kuitansi</a>` : '-'}
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-     window.onload = async function() {
+        // Tunggu dokumen termuat sepenuhnya, lalu jalankan inisialisasi utama sekali saja
+        window.onload = async function() {
             renderDashboard();
             renderBKU();
             renderSeksi();
@@ -624,7 +580,7 @@ async function loadTransactions() {
             const txDateEl = document.getElementById('txDate');
             if(txDateEl) txDateEl.value = today;
 
-            // Muat data dari Google Spreadsheet saat halaman pertama kali dibuka
+            // Muat data dari Google Spreadsheet jika tersedia
             await loadTransactions();
         };
 
@@ -635,37 +591,26 @@ async function loadTransactions() {
                 let result = await response.json();
                 
                 if (result.status === "success") {
-                    let transactions = result.data;
-                    let tableBody = document.getElementById("bkuTableBody");
-                    if (!tableBody) return;
-                    
-                    tableBody.innerHTML = ""; // Bersihkan tabel sebelum diisi ulang
-                    
-                    transactions.forEach((tx, index) => {
-                        let row = document.createElement("tr");
-                        row.className = "hover:bg-slate-50 transition";
-                        row.innerHTML = `
-                            <td class="py-3 px-4 font-mono font-bold text-xs text-indigo-600">${tx.noNota || '-'}</td>
-                            <td class="py-3 px-4 text-slate-600 text-xs">${tx.date || '-'}</td>
-                            <td class="py-3 px-4 text-slate-700 font-medium">BKU Utama</td>
-                            <td class="py-3 px-4 text-slate-800">${tx.desc || '-'}</td>
-                            <td class="py-3 px-4 text-right font-semibold text-emerald-600">${Number(tx.masuk) > 0 ? formatRupiah(tx.masuk) : '-'}</td>
-                            <td class="py-3 px-4 text-right font-semibold text-rose-600">${Number(tx.keluar) > 0 ? formatRupiah(tx.keluar) : '-'}</td>
-                            <td class="py-3 px-4 text-right font-bold text-slate-800">-</td>
-                            <td class="py-3 px-4 text-center">
-                                ${tx.fileUrl ? `<a href="${tx.fileUrl}" target="_blank" class="inline-flex items-center space-x-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-2.5 py-1 rounded-lg text-xs font-semibold border border-emerald-200 transition"><i class="fa-solid fa-file-arrow-down"></i><span>Drive</span></a>` : '-'}
-                            </td>
-                            <td class="py-3 px-4 text-center">-</td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
+                    let remoteTransactions = result.data;
+                    if(remoteTransactions && remoteTransactions.length > 0) {
+                        // Anda bisa menggabungkan atau memperbarui appState.transactions di sini
+                    }
                 }
             } catch (error) {
-                console.error("Gagal memuat data BKU:", error);
+                console.error("Gagal memuat data dari Spreadsheet:", error);
             }
         }
-            `;
-            setTimeout(() => { if(area.firstElementChild) area.firstElementChild.remove(); }, 5000);
+
+        function showNotification(message, type = 'success') {
+            const area = document.getElementById('notificationArea');
+            if(!area) return;
+            const bgClass = type === 'error' ? 'bg-rose-500 text-white' : 'bg-emerald-600 text-white';
+            const alertBox = document.createElement('div');
+            alertBox.className = `${bgClass} px-4 py-3 rounded-xl shadow-md text-sm font-medium flex justify-between items-center transition animate-fade-in`;
+            alertBox.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="ml-4 text-white/80 hover:text-white"><i class="fa-solid fa-xmark"></i></button>`;
+            area.innerHTML = '';
+            area.appendChild(alertBox);
+            setTimeout(() => { if(alertBox.parentElement) alertBox.remove(); }, 5000);
         }
 
         function populateSelectOptions() {
@@ -892,12 +837,14 @@ async function loadTransactions() {
             renderDashboard();
             showNotification(`Sukses! Akun & Folder Google Drive terisolasi (${newFolder}) dibuat.`);
         }
-function toggleUserMenu() {
+
+        function toggleUserMenu() {
             let menu = document.getElementById("userMenuDropdown"); 
             if (menu) {
                 menu.classList.toggle("hidden");
             }
         }
+
         function switchEvent(eventName) {
             const ev = appState.events.find(e => e.name === eventName);
             if(ev) {
@@ -924,7 +871,7 @@ function toggleUserMenu() {
         // ==========================================
         // FUNGSI UTAMA UPLOAD FILE KE GOOGLE DRIVE VIA APPS SCRIPT
         // ==========================================
-    function sendFileToAppsScript(fileObj, customFileName, onComplete) {
+        function sendFileToAppsScript(fileObj, customFileName, onComplete) {
             if (APPS_SCRIPT_URL === "") {
                 showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
                 return;
