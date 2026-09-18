@@ -536,7 +536,7 @@
         // ==========================================
         // GANTI DENGAN URL WEB APP APPS SCRIPT ANDA
         // ==========================================
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTCmEV4YOihLU8-eGv0COC2M5Vrmqi_VzU7fUrp4XRjDYPOmWKOzhNbIhIHKXPyza_/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwz5i4BNtFC9MiNjuQK9I2MmHSNaE0ElkDz7mNgwhdxeY_7-m74f8TaaMcPXl6aDb17/exec";
 
         let appState = {
             currentEvent: "Dies Natalis Organisasi ke-25",
@@ -910,7 +910,7 @@ async function loadTransactions() {
         // FUNGSI UTAMA UPLOAD FILE KE GOOGLE DRIVE VIA APPS SCRIPT
         // ==========================================
         function sendFileToAppsScript(fileObj, customFileName, onComplete) {
-            if (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbxTCmEV4YOihLU8-eGv0COC2M5Vrmqi_VzU7fUrp4XRjDYPOmWKOzhNbIhIHKXPyza_/exec") {
+            if (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwz5i4BNtFC9MiNjuQK9I2MmHSNaE0ElkDz7mNgwhdxeY_7-m74f8TaaMcPXl6aDb17/exec") {
                 showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
                 return;
             }
@@ -928,12 +928,14 @@ async function loadTransactions() {
                     fileData: base64Data
                 };
 
-                fetch(APPS_SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify(payload)
-                })
+               await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors", // <--- Tambahkan ini agar tidak diblokir CORS
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+});
                 .then(() => {
                     showNotification(`File "${customFileName || fileObj.name}" berhasil tersimpan ke Google Drive!`);
                     if(onComplete) onComplete();
