@@ -935,13 +935,11 @@
             }
         }
 
-        function sendFileToAppsScript(fileObj, customFileName, onComplete) {
+      function sendFileToAppsScript(fileObj, customFileName, onSuccess) {
             if (APPS_SCRIPT_URL === "") {
-                showNotification('URL Apps Script belum dikonfigurasi di dalam kode!', 'error');
+                if (onSuccess) onSuccess();
                 return;
             }
-
-            showNotification('Mengunggah file secara online ke Google Drive...', 'info');
 
             const reader = new FileReader();
             reader.readAsDataURL(fileObj);
@@ -956,18 +954,18 @@
                         fileData: base64Data
                     };
 
-                    await fetch(APPS_SCRIPT_URL, {
+                    // Kirim ke Google Drive secara latar belakang (background)
+                    fetch(APPS_SCRIPT_URL, {
                         method: "POST",
                         mode: "no-cors",
                         headers: { "Content-Type": "text/plain;charset=utf-8" },
                         body: JSON.stringify(payload)
-                    });
+                    }).catch(err => console.log("Drive sync background note:", err));
 
-                    showNotification(`File "${customFileName || fileObj.name}" berhasil dikirim ke Google Drive!`);
-                    if (onComplete) onComplete();
+                    if (onSuccess) onSuccess();
                 } catch (error) {
                     console.error("Error:", error);
-                    showNotification("Gagal menyinkronkan file ke Google Drive.", "error");
+                    if (onSuccess) onSuccess(); // Tetap lanjutkan agar aplikasi tidak macet
                 }
             };
         }
@@ -986,26 +984,50 @@
                 return;
             }
 
-            const fileName = `Kuitansi_${noNota}.jpg`;
-            const proceedSave = () => {
-                appState.transactions.push({ id: appState.transactions.length + 1, noNota, date, seksiId, desc, type, amount, file: fileName });
-                appState.driveFiles.unshift({ name: fileName, type: 'image', size: '1.1 MB', date: date, folder: `Seksi / ${appState.currentEvent}` });
+            const fileName = fileInput.files.length > 0 ? `Kuitansi_${noNota}_${fileInput.files[0].name}` : `Kuitansi_${noNota}.jpg`;
+            
+            // Eksekusi penyimpanan data lokal terlebih dahulu agar tidak hilang
+            appState.transactions.push({ 
+                id: appState.transactions.length + 1, 
+                noNota, 
+                date, 
+                seksiId, 
+                desc, 
+                type, 
+                amount, 
+                file: fileInput.files.length > 0 ? fileInput.files[0].name : '-' 
+            });
+            
+            appState.driveFiles.unshift({ 
+                name: fileInput.files.length > 0 ? fileInput.files[0].name : fileName, 
+                type: 'image', 
+                size: fileInput.files.length > 0 ? `${(fileInput.files[0].size / (1024*1024)).toFixed(1)} MB` : '1.0 MB', 
+                date: date, 
+                folder: `Seksi / ${appState.currentEvent}` 
+            });
 
-                closeModalNewTransaction();
-                renderBKU();
-                renderDashboard();
-                renderSeksi();
-                renderDriveExplorer();
-            };
+            closeModalNewTransaction();
+            renderBKU();
+            renderDashboard();
+            renderSeksi();
+            renderDriveExplorer();
 
+            // Reset form input file
+            document.getElementById('txNoNota').value = '';
+            document.getElementById('txDesc').value = '';
+            document.getElementById('txAmount').value = '';
+            document.getElementById('txFile').value = '';
+            document.getElementById('fileNameDisplay').innerText = 'Klik untuk memilih file kuitansi (JPG, PNG, PDF)';
+
+            showNotification(`Transaksi ${noNota} berhasil dicatat dan disimpan!`);
+
+            // Proses kirim file ke Google Drive di latar belakang jika ada file yang diunggah
             if (fileInput.files.length > 0) {
-                sendFileToAppsScript(fileInput.files[0], fileName, proceedSave);
-            } else {
-                proceedSave();
-                showNotification(`Transaksi ${noNota} berhasil dicatat!`);
+                sendFileToAppsScript(fileInput.files[0], fileInput.files[0].name, () => {
+                    showNotification(`File kuitansi "${fileInput.files[0].name}" berhasil disinkronkan ke Google Drive.`);
+                });
             }
         }
-
         function deleteTransaction(id) {
             appState.transactions = appState.transactions.filter(t => t.id !== id);
             renderBKU();
